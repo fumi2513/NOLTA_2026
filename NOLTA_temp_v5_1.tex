@@ -1,0 +1,308 @@
+%#!latex
+%\documentclass[luatex]{nolta}
+%\documentclass[xetex]{nolta}
+\documentclass[dvipdfmx]{nolta}
+%\documentclass[pdftex,survey]{nolta}
+
+% \documentclass[pdftex]{nolta}
+
+
+\newcommand{\NOLTA}{\textbf{NOLTA}}
+
+
+\Vol{2}%
+\No{3}%
+\Year{2011}%
+\Month{10}%
+
+%
+%\printorcid
+%
+
+\setcounter{page}{1101}%%
+
+\title{Instructions/template for preparing
+your NOLTA manuscript\\
+\textcolor{red}{(Ver.\ 5.1, December 17, 2024)}}
+
+\AUTHOR*{%
+\author{Name Author1}{1}\orcid{000-0000-0000-0000},
+\author*{Name Author2}{2}\orcid{000-0000-0000-0000},
+\author{Name Author3}{1}\orcid{000-0000-0000-0000}
+}
+
+
+\AFFILIATE{%
+\affiliate{Institute of Industrial Science, University of XXXXX\\
+1-2-3 Address, City 000-0000, Country}{1},
+\affiliate{Electrical and Electronics Lab, XXXX Laboratories Co. \\
+3-2-1 Address, City 000-0000, Country}{2}
+}
+
+
+
+\received{10}{27}{20XX}
+\revised{12}{29}{20XX}
+\published{7}{1}{20XX}
+
+\begin{document}
+
+\begin{abstract}
+Use this instruction file as a template for preparing your {\NOLTA}
+articles with \LaTeX.  It is essential to adhere to this template
+because final post-peer review manuscripts are published as is, with
+minimal editing/formatting by the publisher.  Do not modify any formats
+or styles.
+Visit Information for Authors
+\url{https://www.ieice.org/nolta/journal/author.html} for the
+latest version of {\NOLTA} template.
+\end{abstract}
+
+\begin{keywords}
+NOLTA, template, nolta.cls, up to six words
+\end{keywords}
+
+\maketitle
+
+\section{Introduction}
+This template provides formats and styles for NOLTA manuscripts. It is
+essential to adhere to this template because final manuscripts are
+published \textit{``as is''} with minimal changes introduced by the
+publisher. Do not modify formats (font, font size, paper size, printing
+area, line spaces, etc.).  \textit{Keep one unmodified copy of this
+template for your reference and prepare your manuscript using another
+copy.}
+
+\section{Related Works}
+\subsection{Mutual Learning}
+
+Mutual learning is a training framework in which multiple models are trained simultaneously by referring to each other's predictions. In individual learning, each model is optimized independently using only the ground-truth labels. In contrast, mutual learning introduces interactions among models during training through their prediction distributions.
+
+In ML, the loss function of each model includes both a supervised loss and a mimicry loss. For two models, let $p_1$ and $p_2$ denote the prediction distributions of Model 1 and Model 2, respectively.
+The objective function of each model consists of a cross-entropy loss and a Kullback--Leibler (KL) divergence term:
+\begin{equation}
+L_{\Theta_1} = L_{\mathrm{CE}}(y, p_1) + D_{\mathrm{KL}}(p_2 \| p_1),
+\end{equation}
+\begin{equation}
+L_{\Theta_2} = L_{\mathrm{CE}}(y, p_2) + D_{\mathrm{KL}}(p_1 \| p_2).
+\end{equation}
+The cross-entropy term supervises each model using the ground-truth label $y$, while the KL divergence term encourages the prediction distribution of each model to approach that of the other model.
+
+ML improves generalization performance compared with individual learning across various network architectures and tasks, such as image recognition and person re-identification.
+Compact models also benefit from mutual learning without using a large pre-trained teacher model.
+Since each model is trained collaboratively but used independently at inference time, ML can improve the training process without increasing the inference cost of a single model.
+
+The effectiveness of ML has been discussed in terms of posterior entropy and robust minima.
+Because models are initialized differently, their secondary class probabilities can differ even when they predict the same ground-truth class.
+Matching these prediction distributions increases posterior entropy and may guide models toward flatter minima with better generalization.
+However, the relationship between mutual learning and the generalization process under changes in model complexity and training time has not been fully characterized.
+
+\subsection{Double Descent}
+Double descent is a phenomenon in which the test error first decreases, then increases, and finally decreases again as model complexity increases. This behavior differs from the conventional U-shaped generalization curve expected from the classical bias-variance trade-off. Figure X illustrates a typical double descent curve, where the training error continues to decrease while the test error exhibits a non-monotonic pattern. Depending on the source of complexity, double descent can be categorized into parameter-wise and epoch-wise double descent. Parameter-wise double descent occurs as the number of model parameters increases, whereas epoch-wise double descent occurs as the number of training epochs increases.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\linewidth]{fig/double_descent.png}
+  \caption{Caption text.}
+  \label{fig:doubledescent}
+\end{figure}
+
+The curve is often interpreted by dividing the learning process into three regimes, as shown by the shaded regions in Fig.~\ref{fig:doubledescent}: the under-parameterized regime, the critically-parameterized regime, and the over-parameterized regime, shown in purple, orange, and green, respectively. In the under-parameterized regime, the model does not have sufficient capacity to fit the training data, and increasing model complexity tends to reduce the test error. The critically-parameterized regime appears around the interpolation threshold, where the model starts to fit the training data almost perfectly. In this regime, the test error often increases and forms a local maximum, referred to as the peak of double descent. In the over-parameterized regime, the model has sufficient capacity to fit the training data, and further increasing model complexity tends to reduce the test error again.
+
+Previous studies have also investigated factors that affect the peak of double descent. Label noise tends to make the peak more prominent and thus makes the double descent behavior more clearly observable. Data augmentation shifts the peak toward larger models and reduces its height. Ensemble methods have also been reported to reduce the peak.
+
+\section{Experiments}
+
+\section{Discussion}
+
+\section{Conclusions}
+
+\acknowledgments
+\textcolor{blue}{(if any)}
+This section should be brief and acknowledge those that have assisted in
+the work or preparation of the manuscript, but who do not qualify for
+authorship, as defined in the \textbf{Author Contribution} section.
+Acknowledgments must be placed after the Conclusion section Declare
+`\verb+\acknowledgments+' before the acknowledgment text.  To
+acknowledge financial sponsors or funds, describe them into the Funding
+section.
+
+\dataavailability
+\textcolor{blue}{(if any)}
+Authors are encouraged to include a Data Availability in
+manuscripts that report results from research data. Following
+Hrynaszkiewicz et al. (2020, \url{http://doi.org/10.5334/dsj-2020-017}),
+statements should include information on where the manuscript's data
+can be found and hyperlinks (where applicable) to it. If research data
+are not publicly available, this should be stated in this section along
+with any conditions for accessing the data.
+Declare  ``\verb+\dataavailability+'' before placing the Data
+availability text.
+
+\funding
+\textcolor{red}{(required)}
+Authors should list all funding sources for their work in the Funding
+section in the following format:
+
+This work was financially supported in part by grants
+awarded to [Author(s) Initials].
+
+Other variations are:
+\begin{itemize}
+\item Institution awarded the funding: [Institution name; if none, write
+``None'']
+\item Funder: [Funding agency name, City, Country]
+\item Grant number (for each grant): [Grant number or GrantID]
+\end{itemize}
+
+If no funding was used to support the work, write ``Not applicable''
+under the section heading.
+Declare  ``\verb+\funding+'' before placing the Funding text.
+
+\conflictsofinterest
+\textcolor{red}{(required)}
+Authors are required to declare any competing financial or other
+conflicts of interest in relation to the work described. If there are no
+declared interests, include a statement under the section heading
+``The authors declare no competing interests.''
+Declare  ``\verb+\conflictsinterest+'' before placing the
+Conflict of interest text.
+
+\authorcontribution
+\textcolor{red}{(required)}
+Authors are required to include a statement that specifies the
+contribution of each author that follows the CRediT (Contributor Roles
+Taxonomy; \url{https://credit.niso.org}) taxonomy.
+One or more of the 14 CRediT taxonomy categories
+should be ascribed to each author. Authors should examine the CRediT
+website and include the appropriate roles for each author. An example
+would be (use the actual author names in your manuscript):
+
+\begin{tabular}{ll}
+Conceptualization: & Author 1.\\
+Funding acquisition: & Author 1.\\
+Investigation: & Author 1, Author 2. \\
+Supervision: & Author 1.\\
+Visualization: & Author 3.\\
+Writing--original draft: & Author 1, Author 2, Author 3.\\
+Writing--review \& editing: & Author 1, Author 2.
+\end{tabular}
+
+If the work is given by authors equally, you can put
+``All the authors contributed equally to the present work.''
+Declare  ``\verb+\authorcontribution+'' before placing the
+Author contribution text.
+
+
+
+\ethics
+\textcolor{blue}{(if any)}
+Authors are required to declare they obtained and were compliant with
+the relevant ethics approvals for any studies involving human or animal
+subjects.
+Declare  ``\verb+\ethics+'' before placing the Ethics approval and
+consent to participate text.
+
+\patientconsent
+\textcolor{blue}{(if any)}
+Authors are required to declare they obtained the informed consents from
+patients for any relevant studies involving human subjects.
+Declare  ``\verb+\patientconsent+'' before placing the Patient consent
+for publication section.
+
+\aitools
+\textcolor{blue}{(if any)}
+Authors are required to declare the use of Artificial intelligence tools
+in the research or preparation of the manuscript. Include all relevant
+details, including the name of the tool or service, a link to it, and
+the purpose or reason for the use of the tool. Declare
+``\verb+\aitools+'' before the Artificial intelligence tools text.
+
+\appendix
+\textcolor{blue}{(if any)}
+Appendices are placed after the additional descriptions including Data
+Availability, Funding, and so on, but before the References.
+Declare  ``\verb+\appendix+'' before placing appendix sections.
+
+\section{Guide for preparing multi-color display items}
+Color figures can be included in NOLTA manuscripts. Authors, however,
+should be reminded that some reviewers/readers may be colorblind.
+Authors should consider the following suggestions when preparing figures:
+\begin{enumerate}
+\item Avoid using a combination of red and green. Use magenta (purple)
+and green instead.
+\item Do not overuse colors in the graphs but consider using different
+hatching, shapes, line types (solid, dotted or dashed) or symbols for
+different curves.
+\item Red does not appear bright or vivid for those with colorblindness,
+so avoid using red characters or symbols.
+For further information, see
+\url{http://jfly.iam.u-tokyo.ac.jp/color/index.html}.
+\end{enumerate}
+
+\section{NOLTA category}
+The NOLTA category is used by the NOLTA Editorial Office when directing
+your manuscript to the appropriate Associate Editor. Furthermore, to
+help readers the category is displayed at the NOLTA websites and the
+journal archives. Choose the most relevant category from the list on the
+web page
+\url{https://www.jstage.jst.go.jp/browse/nolta/_pubinfo/-char/en}.
+The NOLTA Editorial Committee may alter the nominated subject category,
+if it judges that the authors’ selection is not the optimal; this may
+be done without notification to the authors.
+
+\section{Reference format}
+References should appear at the end of the manuscript, in the order in
+which they are referred in the main text. See the examples in the
+section elsewhere in this template for the different styles (journal
+article, whole book, contributed chapter in a book, and proceedings
+article).
+
+URLs can be referenced as in \cite{web link}, below.  Articles
+referenced in the manuscript should be styled as indicated in
+\cite{nolta}.  If a reference has a DOI (Digital Object Identifier),
+it should be indicated as in \cite{nolta, journal paper}.
+An \verb+\href+ command can embed a URL of the landing page into a clickable
+DOI, see this \LaTeX ~source file.
+The author should confirm integrity of DOIs/URLs corresponding to the landing pages.
+The styles for books and book chapters are
+illustrated in \cite{book} and \cite{chapter}, respectively. The
+proceedings of a conference should be referred as Proc. NOLTA'09 with
+year ('09) after the conference name (NOLTA). An example is shown in
+\cite{proceeding paper}.  Use a pair of square brackets to cite a
+reference in the main text, for example, \cite{nolta}.  Multiple
+consecutive numbered references can be cited by using a hyphen like
+\cite{journal paper, book, chapter, proceeding paper}.  It is authors'
+responsibility to provide correct information in the References
+section.
+
+
+\begin{thebibliography}{9}
+\bibitem{web link} Visit \url{https:
+//www.jstage.jst.go.jp/browse/nolta/_pubinfo/-char/en}
+for the latest version of this template.
+\bibitem{nolta} A.B. Author1, C.D. Author2, and E.F. Author3,
+``Paper of NOLTA should be referenced like this,''
+\textit{NOLTA},
+vol.\ 1, no.\ 1, pp.\ 123--456, October 2010.
+DOI:\href{https://doi.org/XX.XXXX/XXXXX}{XX.XXXX/XXXXX}
+\bibitem{journal paper} A.B. Author1, C.D. Author2, and E.F. Author3,
+``Title of journal paper with a comma inside the quotation marks like this,''
+\textit{Journal Title in Italic},
+vol.\ 12, no.\ 3, pp.\ 456--789, June 2009.
+DOI:\href{https://doi.org/YY.YYYY/YYYYY}{YY.YYYY/YYYYY}
+\bibitem{book}A.B. Book-Author,
+\textit{Book Title in Italic without Quotation Marks},
+Publisher Name, City, year.
+\bibitem{chapter}A.B. Chapter-Writer, ``Title of quoted chapter''
+in \textit{Book Title in Italic without Quotation Marks},
+ed.\ C.D. Editor, pp.\ 123--456, Publisher Name, City, year.
+\bibitem{proceeding paper}A.B. Author1, C.D. Author2,
+and E.F. Author3, ``Title of
+paper in proceeding,'' Proc. 6.	NOLTA'09, paper ID (if any),
+pp.\ 456--789, October 2009.
+\end{thebibliography}
+
+\end{document}
+
+
