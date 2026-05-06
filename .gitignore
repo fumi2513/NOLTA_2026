@@ -15,6 +15,7 @@
 *.nav
 *.snm
 *.vrb
+.dvi
 
 # LaTeX Workshop / build directory
 build/
