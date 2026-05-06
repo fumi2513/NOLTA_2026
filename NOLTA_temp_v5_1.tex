@@ -65,13 +65,15 @@ NOLTA, template, nolta.cls, up to six words
 \maketitle
 
 \section{Introduction}
-This template provides formats and styles for NOLTA manuscripts. It is
-essential to adhere to this template because final manuscripts are
-published \textit{``as is''} with minimal changes introduced by the
-publisher. Do not modify formats (font, font size, paper size, printing
-area, line spaces, etc.).  \textit{Keep one unmodified copy of this
-template for your reference and prepare your manuscript using another
-copy.}
+Deep learning has achieved remarkable success in various fields, such as image recognition and natural language processing. The generalization performance of deep neural networks has often been improved by increasing model size, the amount of training data, and computational resources. This tendency is often characterized by scaling laws, which describe how model performance improves as these resources are scaled up.
+
+However, such resource-based scaling is not always applicable in practical situations. In some domains, such as industrial anomaly detection and medical applications, it is difficult to collect a large amount of labeled data, especially for rare or abnormal cases. In addition, some applications must be performed under limited computational resources, memory capacity, or inference time. Therefore, it is important to explore alternative learning paradigms that can improve generalization performance without simply relying on larger models, larger datasets, or larger computational budgets.
+
+In recent years, collaborative learning frameworks using multiple models have attracted attention as one possible approach. These frameworks use the predictions of other models as additional supervision during training, thereby improving generalization performance. Since model collaboration is required only during training, these frameworks can improve model performance without increasing the computational cost at inference time.
+
+A representative example of such frameworks is Mutual learning (ML), in which multiple models are trained simultaneously while referring to each other's prediction distributions. Unlike conventional teacher-student approaches, ML does not require a fixed pre-trained teacher model. In ML, each model is trained using a loss function consisting of a standard supervised loss and a KL-divergence-based consistency loss between prediction distributions. Previous studies have shown that ML often achieves better generalization performance than independently trained models. However, it remains unclear how ML improves model performance, particularly how interactions between models during training contribute to this improvement.
+
+In this study, we analyze the generalization process of ML by comparing ML models with individual learning (IL) models. We focus on the double descent phenomenon because it contradicts the conventional bias-variance trade-off and involves non-monotonic changes in test error, which can reveal characteristics of the generalization process. We first examine differences in double descent behavior between ML and IL with respect to the number of model parameters and training epochs. As further analyses, we compare ML and IL in terms of variance, loss landscape geometry, and Hessian-based properties, especially across the regimes of double descent.
 
 \section{Related Works}
 \subsection{Mutual Learning}

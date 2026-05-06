@@ -1,0 +1,25 @@
+# LaTeX intermediate files
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.nav
+*.snm
+*.vrb
+
+# LaTeX Workshop / build directory
+build/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
