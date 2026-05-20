@@ -114,8 +114,8 @@ Double descent is a phenomenon in which the test error first decreases, then inc
 
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=0.8\linewidth]{fig/1_double_descent.png}
-  \caption{Caption text.}
+  \includegraphics[width=0.5\linewidth]{fig/1_double_descent.png}
+  \caption{Schematic illustration of double descent and three regimes.}
   \label{fig:doubledescent}
 \end{figure}
 
@@ -299,7 +299,8 @@ To further investigate this behavior from the viewpoint of solution geometry, we
 We first compute the average of the top-five Hessian eigenvalues as a quantitative measure of sharpness.
 Then, we visualize the loss landscape around representative filters in each regime.
 
-\paragraph{Hessian eigenvalue analysis}
+\subsubsection{Hessian eigenvalue analysis}
+
 % setup
 We quantitatively analyze the local curvature of the solutions obtained by ML and IL using Hessian eigenvalues.
 For each trained model at each base number of filters $k$, we compute the average of the top five Hessian eigenvalues.
@@ -319,22 +320,150 @@ The shaded regions indicate the Under-parameterized, Critically-parameterized, a
 
 In the Under-parameterized regime, IL and ML show similar values, and no clear difference is observed.
 In the Critically-parameterized regime, the Hessian eigenvalues of ML are much smaller than those of IL.
-This result suggests that ML reaches flatter solutions than IL around the Critical regime.
 In the Over-parameterized regime, the values of both methods become small, and the difference between ML and IL is also small.
 
 
-\paragraph{Loss Landscape Visualization}
+\subsubsection{Loss Landscape Visualization}
 
 % setup
+We then visualize the loss landscape around the solutions obtained by ML and IL.
+For a learned model parameters $\theta^{*}$, we define the two-dimensional loss surface as
+\[
+f(\alpha, \beta)
+=
+L(\theta^{*} + \alpha \delta + \beta \eta),
+\]
+where $\delta$ and $\eta$ are direction vectors, and $\alpha$ and $\beta$ are displacement coefficients.
+
+In this experiment, we visualize the loss landscape for representative values of $k$ in each regime.
+Specifically, we select $k=1$, $k=10$, and $k=60$ as representative values for the Under-parameterized, Critically-parameterized, and Over-parameterized regimes, respectively.
+These values are indicated by arrows in Fig.~\ref{fig:hessian}.
+
+The displacement coefficients $\alpha$ and $\beta$ are varied within the range $[-0.2, 0.2]$, forming a $51 \times 51$ grid.
+For each method, we compute the loss change relative to the center point $\theta^{*}$ using three sets of direction vectors for each of the five trained models.
+The loss changes are then averaged over all models and direction sets.
+
 
 % results
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=0.8\linewidth]{fig/11_Loss_Landscape.png}
+  \caption{Loss landscapes of IL and ML at representative values of $k$.}
+  \label{fig:landscape}
+\end{figure}
+
+Figure~\ref{fig:landscape} shows the loss landscapes of IL and ML for the representative values of $k$ indicated by the arrows in Fig.~\ref{fig:hessian}.
+Specifically, $k=1$, $k=10$, and $k=60$ correspond to the Under-parameterized, Critically-parameterized, and Over-parameterized regimes, respectively.
+
+For $k=1$, both IL and ML show relatively flat landscapes, and no clear difference is observed.
+For $k=10$, which corresponds to the Critically-parameterized regime, the loss landscape of IL is much sharper than that of ML.
+In contrast, ML shows a flatter landscape.
+For $k=60$, both IL and ML show relatively flat landscapes, and the difference between the two methods becomes small.
+
+These observations are consistent with the Hessian eigenvalue analysis.
 
 \subsection{Error Analysis on Noisy-label and Clean-label Samples}
+To further investigate the training behavior of ML and IL, we analyze how each method fits noisy-label and clean-label samples.
+For this purpose, we divide the training samples into two groups according to whether their labels are corrupted.
 
+Since 20\% label noise is added to the training set, the noisy-label samples correspond to the samples whose labels are replaced with incorrect labels, and the clean-label samples correspond to the remaining samples whose labels are unchanged.
+We then compute the error rates of ML and IL on each group during training.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=0.8\linewidth]{fig/12_NoisyData.png}
+  \caption{Error rates and differences on noisy-label samples.}
+  \label{fig:noisy_error}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=0.8\linewidth]{fig/13_CleanData.png}
+  \caption{Error rates and differences on clean-label samples.}
+  \label{fig:clean_error}
+\end{figure}
+
+Figure~\ref{fig:noisy_error} shows the error rates on noisy-label samples.
+Figure~\ref{fig:clean_error} shows the error rates on clean-label samples.
+In each figure, the left and middle panels show the error rates of IL and ML, respectively, and the right panel shows the difference between them.
+
+For noisy-label samples, the difference between ML and IL is small in the Under-parameterized regime, where both methods show high error rates. 
+In the Critically-parameterized regime, ML maintains a higher error rate than IL, indicating that ML fits noisy-label samples more slowly. 
+In the Over-parameterized regime, ML shows large fluctuations in the early stage of training, suggesting unstable fitting behavior for noisy-label samples.
+
+For clean-label samples, ML also shows slightly slower convergence than IL in the Critically-parameterized regime.
+In the Over-parameterized regime, ML exhibits small fluctuations in the early stage of training.
+However, these differences are less pronounced than those observed for noisy-label samples.
 
 \section{Discussion}
+\paragraph{Why ML improves generalization in the Critically-Parameterized Regime.}
+
+The experimental results indicate that Mutual learning (ML) is particularly effective in the Critically-Parameterized Regime.
+In the filter-wise analysis, ML shows lower test error than Individual learning (IL) around this regime.
+In addition, the peak of double descent is suppressed and shifted toward larger model widths.
+These results suggest that ML changes not only the final test performance but also the process by which models fit the training data.
+
+A possible reason for this behavior is that ML suppresses rapid overfitting to noisy labels.
+In ML, each model is trained while matching its prediction distribution to that of the other model.
+Therefore, unlike IL, each model does not fit noisy labels only based on its own prediction.
+This interaction can delay excessive fitting to noisy-label samples and make the fitting process more gradual.
+As a result, the onset of the Critically-Parameterized Regime shifts toward larger model widths.
+
+This interpretation is also supported by the analysis of noisy-label and clean-label samples.
+In the Critically-Parameterized Regime, ML converges more slowly than IL on noisy-label samples.
+This suggests that ML does not simply slow down the entire training process, but rather suppresses rapid fitting to corrupted labels.
+Since overfitting to noisy labels can increase the sensitivity of the model to initialization and training samples, suppressing such fitting can lead to more stable predictions.
+
+The variance analysis further supports this interpretation.
+In the Critically-Parameterized Regime, the increase in variance is suppressed by ML compared with IL.
+This indicates that ML reduces the variation of prediction distributions among models trained from different initial weights.
+Moreover, the Hessian eigenvalue analysis and loss landscape visualization show that ML tends to converge to flatter solutions than IL.
+These results suggest that ML improves generalization by suppressing overfitting to noisy labels, reducing prediction variance, and guiding the models toward flatter minima.
+
+\paragraph{Why ML shows different behavior across regimes.}
+
+The effect of Mutual learning (ML) differs depending on the model-width regime.
+This is because the role of model capacity and the stability of the learned solution change as the number of parameters increases.
+In other words, ML does not affect all model widths in the same way, but its effect appears differently according to how easily the model can fit the training data, including noisy labels.
+
+In the Under-Parameterized Regime, both ML and Individual learning (IL) have limited model capacity.
+Therefore, neither method can fully fit the training data, and excessive fitting to noisy labels is unlikely to occur.
+As a result, the solutions obtained by ML and IL tend to be similar, and the difference between their error rates remains small.
+In this regime, the regularizing effect of ML is not clearly observed because the models are still constrained mainly by insufficient capacity.
+
+In the Critically-Parameterized Regime, the model starts to fit the training data more closely.
+This regime is unstable because small changes in initialization or noisy samples can strongly affect the learned solution.
+Therefore, IL is more likely to overfit noisy labels and show increased test error.
+In contrast, ML suppresses rapid fitting to noisy labels by aligning the prediction distributions of two models.
+Thus, the effect of ML becomes most apparent in this regime, where it reduces test error, suppresses variance, and leads to flatter solutions.
+
+In the Over-Parameterized Regime, the model has sufficiently large capacity to fit the training data.
+Therefore, both ML and IL can eventually reach solutions with similar test performance.
+However, the larger number of parameters also increases the freedom of possible solutions.
+Since the two models in ML are initialized differently, they may follow different fitting paths in the early stage of training.
+At the same time, ML forces their prediction distributions to be consistent through the KL-divergence term.
+This interaction can make the learning dynamics unstable at the beginning of training, leading to larger fluctuations in the error rate.
+
+Overall, these results suggest that the regime-dependent behavior of ML is caused by the balance between model capacity, sensitivity to noisy labels, and the freedom of possible solutions.
+ML has little effect in the Under-Parameterized Regime because the models lack sufficient capacity.
+It is most effective in the Critically-Parameterized Regime because the models are sensitive to noisy labels and initialization.
+In the Over-Parameterized Regime, its effect appears mainly in the transient training dynamics rather than in the final test error.
 
 \section{Conclusions}
+
+This study analyzed the generalization process of Mutual learning (ML) through the lens of double descent.
+We compared ML with Individual learning (IL) in terms of filter-wise double descent, epoch-wise double descent, variance, Hessian eigenvalues, and loss landscape geometry.
+
+The experimental results showed that both ML and IL exhibit double descent behavior.
+However, ML tended to delay the transition into the Critical Regime and suppress the increase in test error, especially around the Critical Regime.
+This suggests that ML can reduce overfitting during the learning process.
+
+The variance analysis further showed that ML suppresses the increase in variance around the Critical Regime.
+In addition, the Hessian eigenvalue analysis and loss landscape visualization indicated that ML tends to converge to flatter solutions than IL.
+These results suggest that the generalization improvement of ML is related not only to the final test error but also to changes in variance and loss landscape geometry.
+
+Future work will focus on clarifying why ML achieves a lower error rate in the Critical Regime.
+In particular, we plan to investigate how the similarity of learned representations between models affects this behavior, using methods such as centered kernel alignment (CKA).
 
 \acknowledgments
 \textcolor{blue}{(if any)}
