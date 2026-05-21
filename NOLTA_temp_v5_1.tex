@@ -138,27 +138,18 @@ In the over-parameterized regime, the model has sufficient capacity to fit the t
 When label noise is introduced into the training labels, the peak tends to become more prominent, making double descent behavior more clearly observable.
 
 \section{Experiments}
-We first analyze model-wise and epoch-wise double descent by varying the base number of filters and training epochs, respectively. We then conduct additional analyses related to the underlying generalization mechanism: bias--variance decomposition, loss landscape geometry, the top five eigenvalues of the Hessian matrix, and the behavior on clean and noisy test data.
+We first analyze parameter-wise and epoch-wise double descent by varying the base number of filters and training epochs, respectively. We then conduct additional analyses related to the underlying generalization mechanism: bias--variance decomposition, the top five eigenvalues of the Hessian matrix, loss landscape geometry, and error behavior on noisy-label and clean-label training samples.
 
 \subsection{Experimental Setup}
 
-We evaluate ML and IL on an image classification task using CIFAR-10.
-
+We evaluate ML and IL on an image classification task using CIFAR-10\cite{krizhevsky_learning_2009}.
 CIFAR-10 consists of 50,000 training images and 10,000 test images from 10 classes.
 We add 20\% label noise to the training labels.
 
 For both ML and IL, we use a 5-layer CNN consisting of four convolutional layers and one fully connected layer.
 The numbers of filters in the four convolutional layers are set to $[k, 2k, 4k, 8k]$, where $k$ denotes the base number of filters.
 
-In ML, two models with different initial weights are trained mutually.
-In IL, a single model initialized with the same initial weights as Model 1 in ML is trained individually.
-For ML, we report the result of Model 1.
-Each result is averaged over five independent runs with different initial weights.
-
-In ML, two models, denoted by $M_1$ and $M_2$, are trained mutually.
-The two models are initialized with different initial weights.
-In IL, a single model initialized with the same initial weights as $M_1$ is trained individually.
-For a fair comparison, we report the results of $M_1$ for ML and compare them with those of the corresponding IL model.
+In ML, two models, referred to as Model 1 and Model 2, are trained mutually. The two models are initialized with different initial weights. In IL, a single model initialized with the same initial weights as Model 1 is trained individually. For a fair comparison, we report the results of Model 1 in ML and compare them with those of the corresponding IL model. Each result is averaged over five independent runs with different initial weights.
 
 The loss function for IL is the cross-entropy loss.
 For ML, the loss function consists of the cross-entropy loss and the KL divergence between the prediction distributions of the two models.
@@ -166,10 +157,13 @@ All models are trained for 500 epochs using SGD without momentum.
 The batch size is 128, and the learning rate is set to $1/\sqrt{1+t/512}$, where $t$ denotes the training step.
 
 \subsection{Filter-wise Double Descent}
-This experiment analyzes how ML and IL behave as the model width increases.
-In particular, we investigate whether filter-wise double descent occurs in both methods and how the error curves differ between them.
+% Overview
+This experiment compares filter-wise double descent behavior between ML and IL.
+Specifically, we analyze how the training and test error rates change as the base number of filters $k$ increases.
 
-The base number of filters $k$ is varied from 1 to 60. For each value of $k$, we train the models for 500 epochs and evaluate the training and test error rates.
+% Setting
+The base number of filters $k$ is varied from 1 to 60.
+For each value of $k$, we evaluate the training and test error rates after 500 training epochs.
 
 \begin{figure}[htb]
   \centering
@@ -199,8 +193,9 @@ The critically-parameterized regime also starts later and lasts longer in ML.
 Consequently, the transition to the over-parameterized regime is delayed in ML.
 
 \subsection{Epoch-wise Double Descent}
-This experiment analyzes epoch-wise double descent over different model widths.
-Specifically, we examine how the error rates of ML and IL change during training for each value of the base number of filters $k$.
+% Overview
+This experiment compares epoch-wise double descent behavior between ML and IL.
+Specifically, we analyze how the training and test error rates change during training for different values of the base number of filters $k$.
 
 \begin{figure}[htb]
   \centering
@@ -254,10 +249,9 @@ The training error difference shows that ML tends to have higher training error 
 This indicates that ML converges more slowly to the training data than IL.
 
 \subsection{Variance Analysis Based on Bias--Variance Decomposition}
-
-To further investigate the generalization behavior of ML and IL in double descent, we focus on variance.
-Variance is an important factor in analyzing overfitting and generalization behavior.
-In this experiment, we compare the variance of ML and IL using a cross-entropy-based bias--variance decomposition.
+% Overview
+This experiment compares the variance between ML and IL to further investigate their generalization behavior in double descent.
+Variance is related to overfitting and prediction stability, and we compute it using a cross-entropy-based bias--variance decomposition\cite{yang_rethinking_2020}.
 
 For an input sample $x$, let $\pi_i(x)$ denote the prediction distribution of the $i$-th trained model.
 Following the cross-entropy-based bias--variance decomposition, the representative prediction distribution is defined as
@@ -307,17 +301,13 @@ This tendency is also confirmed in the difference plot, where ML shows lower var
 In the Over-parameterized regime, ML exhibits noticeable variance fluctuations in the early stage of training.
 
 \subsection{Analysis of Solution Geometry}
-The previous variance analysis indicates that ML suppresses the variability of predictions compared with IL.
-To further investigate this behavior from the viewpoint of solution geometry, we analyze the sharpness and flatness of the solutions obtained by ML and IL.
-
-We first compute the average of the top-five Hessian eigenvalues as a quantitative measure of sharpness.
-Then, we visualize the loss landscape around representative filters in each regime.
-
-\subsubsection{Hessian eigenvalue analysis}
+% Overview
+This experiment compares the solution geometry between ML and IL.
+To analyze the sharpness and flatness of the obtained solutions, we first compute the top five eigenvalues of the Hessian matrix and then visualize the loss landscape around representative solutions.
 
 % setup
-We quantitatively analyze the local curvature of the solutions obtained by ML and IL using Hessian eigenvalues.
-For each trained model at each base number of filters $k$, we compute the average of the top five Hessian eigenvalues.
+Following the common settings described in Section~{}, we compute the top five eigenvalues of the Hessian matrix for each trained model.
+The final value is obtained by averaging the top five eigenvalues over the five runs for each base number of filters $k$.
 
 % results
 \begin{figure}[htb]
@@ -340,8 +330,8 @@ In the Over-parameterized regime, the values of both methods become small, and t
 \subsubsection{Loss Landscape Visualization}
 
 % setup
-We then visualize the loss landscape around the solutions obtained by ML and IL.
-For a learned model parameters $\theta^{*}$, we define the two-dimensional loss surface as
+We visualize the loss landscape around the solutions obtained by ML and IL.
+For learned model parameters $\theta^{*}$, the two-dimensional loss surface is defined as
 \[
 f(\alpha, \beta)
 =
@@ -349,13 +339,10 @@ L(\theta^{*} + \alpha \delta + \beta \eta),
 \]
 where $\delta$ and $\eta$ are direction vectors, and $\alpha$ and $\beta$ are displacement coefficients.
 
-In this experiment, we visualize the loss landscape for representative values of $k$ in each regime.
-Specifically, we select $k=1$, $k=10$, and $k=60$ as representative values for the Under-parameterized, Critically-parameterized, and Over-parameterized regimes, respectively.
-These values are indicated by arrows in Fig.~\ref{fig:hessian}.
-
-The displacement coefficients $\alpha$ and $\beta$ are varied within the range $[-0.2, 0.2]$, forming a $51 \times 51$ grid.
-For each method, we compute the loss change relative to the center point $\theta^{*}$ using three sets of direction vectors for each of the five trained models.
-The loss changes are then averaged over all models and direction sets.
+In this experiment, we select $k=1$, $k=10$, and $k=60$ as representative values for the Under-parameterized, Critically-parameterized, and Over-parameterized regimes, respectively.
+The displacement coefficients $\alpha$ and $\beta$ are varied within the range $[-0.2,0.2]$, forming a $51\times51$ grid.
+For each of the five trained models, three sets of direction vectors are used.
+The final landscape is obtained by averaging the loss changes over all models and direction sets.
 
 
 % results
@@ -377,10 +364,12 @@ For $k=60$, both IL and ML show relatively flat landscapes, and the difference b
 These observations are consistent with the Hessian eigenvalue analysis.
 
 \subsection{Error Analysis on Noisy-label and Clean-label Samples}
-To further investigate the training behavior of ML and IL, we analyze how each method fits noisy-label and clean-label samples.
-For this purpose, we divide the training samples into two groups according to whether their labels are corrupted.
+% Overview
+This experiment compares the training behavior of ML and IL on noisy-label and clean-label samples.
+Specifically, we analyze how each method fits samples with corrupted labels and samples with unchanged labels during training.
 
-Since 20\% label noise is added to the training set, the noisy-label samples correspond to the samples whose labels are replaced with incorrect labels, and the clean-label samples correspond to the remaining samples whose labels are unchanged.
+Based on the 20\% label-noise setting described in Section~3.1, we divide the training samples into noisy-label samples and clean-label samples.
+Noisy-label samples are the samples whose labels are replaced with incorrect labels, whereas clean-label samples are the remaining samples whose labels are unchanged.
 We then compute the error rates of ML and IL on each group during training.
 
 \begin{figure}[htb]
