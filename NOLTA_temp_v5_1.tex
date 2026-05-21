@@ -119,7 +119,7 @@ Previous studies have suggested that posterior entropy and robust minima may be 
 However, how the interactions introduced by ML affect the generalization process under changes in model complexity and training time has not been fully characterized.
 
 \subsection{Double Descent}
-Double descent is a phenomenon in which the test error first decreases, then increases, and finally decreases again as model complexity increases. This behavior differs from the conventional U-shaped generalization curve expected from the classical bias-variance trade-off. Figure X illustrates a typical double descent curve, where the training error continues to decrease while the test error exhibits a non-monotonic pattern. Depending on the source of complexity, double descent can be categorized into parameter-wise and epoch-wise double descent. Parameter-wise double descent occurs as the number of model parameters increases, whereas epoch-wise double descent occurs as the number of training epochs increases.
+Double descent is a phenomenon in which the test error first decreases, then increases, and finally decreases again as model complexity increases. This behavior differs from the conventional U-shaped generalization curve expected from the classical bias--variance trade-off.
 
 \begin{figure}[htb]
   \centering
@@ -128,9 +128,14 @@ Double descent is a phenomenon in which the test error first decreases, then inc
   \label{fig:doubledescent}
 \end{figure}
 
-The curve is often interpreted by dividing the learning process into three regimes, as shown by the shaded regions in Fig.~\ref{fig:doubledescent}: the under-parameterized regime, the critically-parameterized regime, and the over-parameterized regime, shown in purple, orange, and green, respectively. In the under-parameterized regime, the model does not have sufficient capacity to fit the training data, and increasing model complexity tends to reduce the test error. The critically-parameterized regime appears around the interpolation threshold, where the model starts to fit the training data almost perfectly. In this regime, the test error often increases and forms a local maximum, referred to as the peak of double descent. In the over-parameterized regime, the model has sufficient capacity to fit the training data, and further increasing model complexity tends to reduce the test error again.
+Figure~\ref{fig:doubledescent} schematically illustrates this behavior. In this figure, the horizontal axis represents a complexity factor, such as the number of model parameters or the number of training epochs. When the curve is observed by increasing the number of model parameters, it is referred to as parameter-wise double descent. When it is observed as training progresses over epochs, it is referred to as epoch-wise double descent.
 
-Previous studies have also investigated factors that affect the peak of double descent. Label noise tends to make the peak more prominent and thus makes the double descent behavior more clearly observable. Data augmentation shifts the peak toward larger models and reduces its height. Ensemble methods have also been reported to reduce the peak.
+As indicated by the shaded regions in Fig.~\ref{fig:doubledescent}, the double descent curve is divided into three regimes: the under-parameterized regime, the critically-parameterized regime, and the over-parameterized regime, colored purple, orange, and green, respectively.
+In the under-parameterized regime, the model does not have sufficient capacity to fit the training data, and increasing model complexity tends to reduce the test error. 
+In the critically-parameterized regime, the model capacity is approximately matched to the complexity of the training data. In this regime, the test error tends to become sensitive to changes in complexity and often shows unstable behavior. The local maximum observed around this regime is referred to as the peak of double descent. 
+In the over-parameterized regime, the model has sufficient capacity to fit the training data, and further increasing model complexity tends to reduce the test error again.
+
+When label noise is introduced into the training labels, the peak tends to become more prominent, making double descent behavior more clearly observable.
 
 \section{Experiments}
 We first analyze model-wise and epoch-wise double descent by varying the base number of filters and training epochs, respectively. We then conduct additional analyses related to the underlying generalization mechanism: bias--variance decomposition, loss landscape geometry, the top five eigenvalues of the Hessian matrix, and the behavior on clean and noisy test data.
