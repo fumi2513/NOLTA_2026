@@ -94,26 +94,29 @@ The main contributions of this study are summarized as follows:
 \section{Related Works}
 \subsection{Mutual Learning}
 
-Mutual learning is a training framework in which multiple models are trained simultaneously by referring to each other's predictions. In individual learning, each model is optimized independently using only the ground-truth labels. In contrast, mutual learning introduces interactions among models during training through their prediction distributions.
+ML is a training framework in which multiple models are trained simultaneously by referring to each other's prediction distributions.
+In contrast to IL, where each model is optimized independently using only the ground-truth labels, ML introduces interactions among models through a consistency loss.
 
-In ML, the loss function of each model includes both a supervised loss and a mimicry loss. For two models, let $p_1$ and $p_2$ denote the prediction distributions of Model 1 and Model 2, respectively.
-The objective function of each model consists of a cross-entropy loss and a Kullback--Leibler (KL) divergence term:
+For two models, let $p_1$ and $p_2$ denote the prediction distributions of Model 1 and Model 2, respectively.
+The parameters of Model 1 and Model 2 are denoted by $\Theta_1$ and $\Theta_2$, respectively.
+The objective functions are defined as
 \begin{equation}
-L_{\Theta_1} = L_{\mathrm{CE}}(y, p_1) + D_{\mathrm{KL}}(p_2 \| p_1),
+L_{\Theta_1} = L_{\mathrm{sup}}(y, p_1) + D_{\mathrm{KL}}(p_2 \| p_1),
 \end{equation}
 \begin{equation}
-L_{\Theta_2} = L_{\mathrm{CE}}(y, p_2) + D_{\mathrm{KL}}(p_1 \| p_2).
+L_{\Theta_2} = L_{\mathrm{sup}}(y, p_2) + D_{\mathrm{KL}}(p_1 \| p_2),
 \end{equation}
-The cross-entropy term supervises each model using the ground-truth label $y$, while the KL divergence term encourages the prediction distribution of each model to approach that of the other model.
+where $y$ denotes the ground-truth label, and $L_{\mathrm{sup}}$ denotes the supervised loss.
+The supervised loss term trains each model using the ground-truth label, while the KL divergence term acts as a consistency loss between the prediction distributions of the two models.
 
-ML improves generalization performance compared with individual learning across various network architectures and tasks, such as image recognition and person re-identification.
-Compact models also benefit from mutual learning without using a large pre-trained teacher model.
+Here, $y$ denotes the ground-truth label, and $L_{\mathrm{sup}}$ denotes the supervised loss.
+The supervised loss term trains each model using the ground-truth label, while the KL divergence term acts as a consistency loss between the prediction distributions of the two models.
+
+Models trained with ML often improve generalization performance compared with models trained with IL.
 Since each model is trained collaboratively but used independently at inference time, ML can improve the training process without increasing the inference cost of a single model.
 
-The effectiveness of ML has been discussed in terms of posterior entropy and robust minima.
-Because models are initialized differently, their secondary class probabilities can differ even when they predict the same ground-truth class.
-Matching these prediction distributions increases posterior entropy and may guide models toward flatter minima with better generalization.
-However, the relationship between mutual learning and the generalization process under changes in model complexity and training time has not been fully characterized.
+Previous studies have suggested that posterior entropy and robust minima may be related to the improved generalization of ML~\cite{zhang_deep_2018}.
+However, how the interactions introduced by ML affect the generalization process under changes in model complexity and training time has not been fully characterized.
 
 \subsection{Double Descent}
 Double descent is a phenomenon in which the test error first decreases, then increases, and finally decreases again as model complexity increases. This behavior differs from the conventional U-shaped generalization curve expected from the classical bias-variance trade-off. Figure X illustrates a typical double descent curve, where the training error continues to decrease while the test error exhibits a non-monotonic pattern. Depending on the source of complexity, double descent can be categorized into parameter-wise and epoch-wise double descent. Parameter-wise double descent occurs as the number of model parameters increases, whereas epoch-wise double descent occurs as the number of training epochs increases.
