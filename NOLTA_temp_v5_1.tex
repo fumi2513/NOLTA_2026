@@ -65,24 +65,30 @@ NOLTA, template, nolta.cls, up to six words
 \maketitle
 
 \section{Introduction}
-Deep learning has achieved remarkable success in various fields, such as image recognition and natural language processing. The generalization performance of deep neural networks has often been improved by increasing model size, the amount of training data, and computational resources. This tendency is often characterized by scaling laws, which describe how model performance improves as these resources are scaled up.
+Deep learning has achieved remarkable success in various fields, such as image recognition and natural language processing. The generalization performance of deep neural networks has often been improved by increasing model size, the amount of training data, and computational resources\cite{kaplan_scaling_2020}. This tendency is often characterized by scaling laws, which describe how model performance improves as these resources are scaled up.
 
 However, such resource-based scaling is not always applicable in practical situations. In some domains, such as industrial anomaly detection and medical applications, it is difficult to collect a large amount of labeled data, especially for rare or abnormal cases. In addition, some applications must be performed under limited computational resources, memory capacity, or inference time. Therefore, it is important to explore alternative learning paradigms that can improve generalization performance without simply relying on larger models, larger datasets, or larger computational budgets.
 
 In recent years, collaborative learning frameworks using multiple models have attracted attention as one possible approach. These frameworks use the predictions of other models as additional supervision during training, thereby improving generalization performance. Since model collaboration is required only during training, these frameworks can improve model performance without increasing the computational cost at inference time.
 
-A representative example of such frameworks is Mutual learning (ML), in which multiple models are trained simultaneously while referring to each other's prediction distributions. Unlike conventional teacher-student approaches, ML does not require a fixed pre-trained teacher model. In ML, each model is trained using a loss function consisting of a standard supervised loss and a KL-divergence-based consistency loss between prediction distributions. Previous studies have shown that ML often achieves better generalization performance than independently trained models. However, it remains unclear how ML improves model performance, particularly how interactions between models during training contribute to this improvement.
+A representative example of such frameworks is Mutual learning (ML)\cite{zhang_deep_2018}, in which multiple models are trained simultaneously while referring to each other's prediction distributions. Unlike conventional teacher-student approaches, ML does not require a fixed pre-trained teacher model. In ML, each model is trained using a loss function consisting of a standard supervised loss and a KL-divergence-based consistency loss between prediction distributions. Previous studies have shown that ML models often achieves better generalization performance than individual learning models. However, it remains unclear how ML improves model performance, particularly how interactions between models during training contribute to this improvement.
 
-In this study, the generalization process of ML is analyzed by comparing ML models with individual learning (IL) models. The double descent phenomenon is used as the main analytical framework because it contradicts the conventional bias-variance trade-off and involves non-monotonic changes in test error, which can reveal characteristics of the generalization process. First, differences in double descent behavior between ML and IL are examined with respect to the number of model parameters and training epochs. As further analyses, ML and IL are compared in terms of variance, loss landscape geometry, and Hessian-based properties, especially across the regimes of double descent. Their convergence behavior on clean and noisy data is also analyzed to examine how ML affects robustness to label noise.
+In this study, the generalization process of Mutual learning (ML) is analyzed by comparing ML models with Individual learning (IL) models. 
+To analyze this process, we focus on the double descent phenomenon\cite{belkin_reconciling_2019,nakkiran_deep_2021}, which describes non-monotonic changes in test error as model complexity or training progress increases. 
+First, differences in double descent behavior between ML and IL are examined with respect to the number of model parameters and training epochs. In particular, the double descent behavior with respect to model parameters is analyzed by dividing it into the Under-parameterized,Critically-parameterized, and Over-parameterized regimes.
+As further analyses, ML and IL are compared in terms of variance, loss landscape geometry, and Hessian-based properties across these regimes. 
+Their convergence behavior on clean and noisy data is also analyzed to examine how ML affects robustness to label noise.
 
 The main contributions of this study are summarized as follows:
 \begin{itemize}
-\item The analysis suggests that ML and IL can differ in aspects that are not apparent from test performance alone.
+  \item We conduct a regime-wise analysis of ML through the lens of double descent.
+  By comparing ML with Individual learning IL, we analyze their generalization behavior in the Under-parameterized, Critically-parameterized, and Over-parameterized Regimes.
 
-\item The results show that the effect of ML is regime-dependent. In particular, around the Critical Regime, ML tends to suppress overfitting, delay fitting to noisy labels, and reduce the increase in variance.
+  \item We show that the effect of ML differs across regimes and is especially pronounced in the Critical Regime.
+  In this regime, ML suppresses the increase in test error and achieves a lower error rate than IL.
 
-\item The analysis provides evidence that ML and IL differ in aspects that are not captured by test performance alone. Even when their final test errors are comparable in the Over-parameterized Regime, ML and IL show different tendencies in the loss landscape geometry and the top eigenvalues of the Hessian.
-
+  \item We show that ML may improve generalization by suppressing overfitting to noisy-label samples and converging to flatter minima.
+  This tendency is supported by variance analysis, Hessian eigenvalue analysis, and loss landscape visualization.
 \end{itemize}
 
 \section{Related Works}
@@ -600,56 +606,58 @@ if it judges that the authors’ selection is not the optimal; this may
 be done without notification to the authors.
 
 \section{Reference format}
-References should appear at the end of the manuscript, in the order in
-which they are referred in the main text. See the examples in the
-section elsewhere in this template for the different styles (journal
-article, whole book, contributed chapter in a book, and proceedings
-article).
+% References should appear at the end of the manuscript, in the order in
+% which they are referred in the main text. See the examples in the
+% section elsewhere in this template for the different styles (journal
+% article, whole book, contributed chapter in a book, and proceedings
+% article).
 
-URLs can be referenced as in \cite{web link}, below.  Articles
-referenced in the manuscript should be styled as indicated in
-\cite{nolta}.  If a reference has a DOI (Digital Object Identifier),
-it should be indicated as in \cite{nolta, journal paper}.
-An \verb+\href+ command can embed a URL of the landing page into a clickable
-DOI, see this \LaTeX ~source file.
-The author should confirm integrity of DOIs/URLs corresponding to the landing pages.
-The styles for books and book chapters are
-illustrated in \cite{book} and \cite{chapter}, respectively. The
-proceedings of a conference should be referred as Proc. NOLTA'09 with
-year ('09) after the conference name (NOLTA). An example is shown in
-\cite{proceeding paper}.  Use a pair of square brackets to cite a
-reference in the main text, for example, \cite{nolta}.  Multiple
-consecutive numbered references can be cited by using a hyphen like
-\cite{journal paper, book, chapter, proceeding paper}.  It is authors'
-responsibility to provide correct information in the References
-section.
+% URLs can be referenced as in \cite{web link}, below.  Articles
+% referenced in the manuscript should be styled as indicated in
+% \cite{nolta}.  If a reference has a DOI (Digital Object Identifier),
+% it should be indicated as in \cite{nolta, journal paper}.
+% An \verb+\href+ command can embed a URL of the landing page into a clickable
+% DOI, see this \LaTeX ~source file.
+% The author should confirm integrity of DOIs/URLs corresponding to the landing pages.
+% The styles for books and book chapters are
+% illustrated in \cite{book} and \cite{chapter}, respectively. The
+% proceedings of a conference should be referred as Proc. NOLTA'09 with
+% year ('09) after the conference name (NOLTA). An example is shown in
+% \cite{proceeding paper}.  Use a pair of square brackets to cite a
+% reference in the main text, for example, \cite{nolta}.  Multiple
+% consecutive numbered references can be cited by using a hyphen like
+% \cite{journal paper, book, chapter, proceeding paper}.  It is authors'
+% responsibility to provide correct information in the References
+% section.
 
+\bibliographystyle{unsrtnat}
+\bibliography{references}
 
-\begin{thebibliography}{9}
-\bibitem{web link} Visit \url{https:
-//www.jstage.jst.go.jp/browse/nolta/_pubinfo/-char/en}
-for the latest version of this template.
-\bibitem{nolta} A.B. Author1, C.D. Author2, and E.F. Author3,
-``Paper of NOLTA should be referenced like this,''
-\textit{NOLTA},
-vol.\ 1, no.\ 1, pp.\ 123--456, October 2010.
-DOI:\href{https://doi.org/XX.XXXX/XXXXX}{XX.XXXX/XXXXX}
-\bibitem{journal paper} A.B. Author1, C.D. Author2, and E.F. Author3,
-``Title of journal paper with a comma inside the quotation marks like this,''
-\textit{Journal Title in Italic},
-vol.\ 12, no.\ 3, pp.\ 456--789, June 2009.
-DOI:\href{https://doi.org/YY.YYYY/YYYYY}{YY.YYYY/YYYYY}
-\bibitem{book}A.B. Book-Author,
-\textit{Book Title in Italic without Quotation Marks},
-Publisher Name, City, year.
-\bibitem{chapter}A.B. Chapter-Writer, ``Title of quoted chapter''
-in \textit{Book Title in Italic without Quotation Marks},
-ed.\ C.D. Editor, pp.\ 123--456, Publisher Name, City, year.
-\bibitem{proceeding paper}A.B. Author1, C.D. Author2,
-and E.F. Author3, ``Title of
-paper in proceeding,'' Proc. 6.	NOLTA'09, paper ID (if any),
-pp.\ 456--789, October 2009.
-\end{thebibliography}
+% \begin{thebibliography}{9}
+% \bibitem{web link} Visit \url{https:
+% //www.jstage.jst.go.jp/browse/nolta/_pubinfo/-char/en}
+% for the latest version of this template.
+% \bibitem{nolta} A.B. Author1, C.D. Author2, and E.F. Author3,
+% ``Paper of NOLTA should be referenced like this,''
+% \textit{NOLTA},
+% vol.\ 1, no.\ 1, pp.\ 123--456, October 2010.
+% DOI:\href{https://doi.org/XX.XXXX/XXXXX}{XX.XXXX/XXXXX}
+% \bibitem{journal paper} A.B. Author1, C.D. Author2, and E.F. Author3,
+% ``Title of journal paper with a comma inside the quotation marks like this,''
+% \textit{Journal Title in Italic},
+% vol.\ 12, no.\ 3, pp.\ 456--789, June 2009.
+% DOI:\href{https://doi.org/YY.YYYY/YYYYY}{YY.YYYY/YYYYY}
+% \bibitem{book}A.B. Book-Author,
+% \textit{Book Title in Italic without Quotation Marks},
+% Publisher Name, City, year.
+% \bibitem{chapter}A.B. Chapter-Writer, ``Title of quoted chapter''
+% in \textit{Book Title in Italic without Quotation Marks},
+% ed.\ C.D. Editor, pp.\ 123--456, Publisher Name, City, year.
+% \bibitem{proceeding paper}A.B. Author1, C.D. Author2,
+% and E.F. Author3, ``Title of
+% paper in proceeding,'' Proc. 6.	NOLTA'09, paper ID (if any),
+% pp.\ 456--789, October 2009.
+% \end{thebibliography}
 
 \end{document}
 
