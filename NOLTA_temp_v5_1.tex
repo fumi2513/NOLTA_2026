@@ -141,16 +141,16 @@ When label noise is introduced into the training labels, the peak tends to becom
 We first analyze parameter-wise and epoch-wise double descent by varying the base number of filters and training epochs, respectively. We then conduct additional analyses related to the underlying generalization mechanism: bias--variance decomposition, the top five eigenvalues of the Hessian matrix, loss landscape geometry, and error behavior on noisy-label and clean-label training samples.
 
 \subsection{Experimental Setup}
-
+% データセット
 We evaluate ML and IL on an image classification task using CIFAR-10\cite{krizhevsky_learning_2009}.
 CIFAR-10 consists of 50,000 training images and 10,000 test images from 10 classes.
 We add 20\% label noise to the training labels.
-
+% 使用モデル
 For both ML and IL, we use a 5-layer CNN consisting of four convolutional layers and one fully connected layer.
 The numbers of filters in the four convolutional layers are set to $[k, 2k, 4k, 8k]$, where $k$ denotes the base number of filters.
-
+% 初期値の設定
 In ML, two models, referred to as Model 1 and Model 2, are trained mutually. The two models are initialized with different initial weights. In IL, a single model initialized with the same initial weights as Model 1 is trained individually. For a fair comparison, we report the results of Model 1 in ML and compare them with those of the corresponding IL model. Each result is averaged over five independent runs with different initial weights.
-
+% 損失関数＋最適化
 The loss function for IL is the cross-entropy loss.
 For ML, the loss function consists of the cross-entropy loss and the KL divergence between the prediction distributions of the two models.
 All models are trained for 500 epochs using SGD without momentum.
@@ -162,8 +162,9 @@ This experiment compares filter-wise double descent behavior between ML and IL.
 Specifically, we analyze how the training and test error rates change as the base number of filters $k$ increases.
 
 % Setting
-The base number of filters $k$ is varied from 1 to 60.
-For each value of $k$, we evaluate the training and test error rates after 500 training epochs.
+The base number of filters $k$ is varied from 1 to 60. For each value of $k$, we evaluate the training and test error rates after 500 training epochs. These error curves are then used to classify the model widths into parameter-wise regimes.
+% Regime定義
+In double descent, the regimes are generally characterized by the model complexity relative to the training data. However, their exact boundaries are not strictly specified\cite{nakkiran_deep_2021}. Therefore, in this study, we operationally define the parameter-wise regimes based on the filter-wise double descent curve. The under-parameterized regime is defined as the region from the beginning of the analyzed range to the point where the test error starts to increase. The critically-parameterized regime is defined as the region from the onset of the test-error increase to the point where the training error falls below 0.05. The over-parameterized regime is defined as the region after the training error falls below 0.05.
 
 \begin{figure}[htb]
   \centering
@@ -178,16 +179,18 @@ The blue and red curves represent IL and ML, respectively, while the solid and d
 As shown in Figure~\ref{fig:filter_wise}, both IL and ML exhibit filter-wise double descent.
 Compared with IL, ML suppresses the test-error peak and shifts the peak position toward larger values of $k$.
 
-To further analyze this difference, we divide the learning behavior into three regimes: the under-parameterized, critically-parameterized, and over-parameterized regimes.
+To further analyze this difference, we classify the model widths into three parameter-wise regimes: the under-parameterized, critically-parameterized, and over-parameterized regimes.
 
 \begin{figure}[htb]
-  \centering
-  \includegraphics[width=0.8\linewidth]{fig/4_filterwise_regime.png}
-  \caption{Regime-wise comparison of filter-wise double descent in IL and ML, where the shaded regions indicate the three regimes.}
-  \label{fig:filterwise_regime}
+\centering
+\includegraphics[width=0.8\linewidth]{fig/4_filterwise_regime.png}
+\caption{Regime-wise comparison of filter-wise double descent in IL and ML, where the shaded regions indicate the three regimes.}
+\label{fig:filterwise_regime}
 \end{figure}
 
 Figure~\ref{fig:filterwise_regime} visually summarizes the regime transitions of IL and ML.
+According to the regime definition above, the under-parameterized regime corresponds to $k=1$--$4$ for IL and $k=1$--$5$ for ML.
+The critically-parameterized regime corresponds to $k=5$--$11$ for IL and $k=6$--$13$ for ML, while the over-parameterized regime corresponds to $k=12$--$60$ for IL and $k=14$--$60$ for ML.
 From this comparison, we observe that the under-parameterized regime is longer in ML than in IL.
 The critically-parameterized regime also starts later and lasts longer in ML.
 Consequently, the transition to the over-parameterized regime is delayed in ML.
