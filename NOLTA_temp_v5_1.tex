@@ -138,67 +138,64 @@ In the over-parameterized regime, the model has sufficient capacity to fit the t
 When label noise is introduced into the training labels, the peak tends to become more prominent, making double descent behavior more clearly observable.
 
 \section{Experiments}
-We first analyze parameter-wise and epoch-wise double descent by varying the base number of filters and training epochs, respectively. We then conduct additional analyses related to the underlying generalization mechanism: bias--variance decomposition, the top five eigenvalues of the Hessian matrix, loss landscape geometry, and error behavior on noisy-label and clean-label training samples.
+We first analyzed parameter-wise and epoch-wise double descent by varying the base number of filters and training epochs, respectively. We then conducted additional analyses to clarify how ML affects generalization behavior: bias--variance decomposition, the top-five Hessian eigenvalues, loss landscape geometry, and error behavior on noisy-label and clean-label training samples.
 
 \subsection{Experimental Setup}
 % データセット
-We evaluate ML and IL on an image classification task using CIFAR-10\cite{krizhevsky_learning_2009}.
-CIFAR-10 consists of 50,000 training images and 10,000 test images from 10 classes.
-We add 20\% label noise to the training labels.
-% 使用モデル
-For both ML and IL, we use a 5-layer CNN consisting of four convolutional layers and one fully connected layer.
-The numbers of filters in the four convolutional layers are set to $[k, 2k, 4k, 8k]$, where $k$ denotes the base number of filters.
-% 初期値の設定
-In ML, two models, referred to as Model 1 and Model 2, are trained mutually. The two models are initialized with different initial weights. In IL, a single model initialized with the same initial weights as Model 1 is trained individually. For a fair comparison, we report the results of Model 1 in ML and compare them with those of the corresponding IL model. Each result is averaged over five independent runs with different initial weights.
-% 損失関数＋最適化
-The loss function for IL is the cross-entropy loss.
-For ML, the loss function consists of the cross-entropy loss and the KL divergence between the prediction distributions of the two models.
-All models are trained for 500 epochs using SGD without momentum.
-The batch size is 128, and the learning rate is set to $1/\sqrt{1+t/512}$, where $t$ denotes the training step.
+We evaluated ML and IL on an image classification task using CIFAR-10\cite{krizhevsky_learning_2009}.
+CIFAR-10 consist of 50,000 training images and 10,000 test images from 10 classes.
+We added 20\% label noise to the training labels.
 
-\subsection{Filter-wise Double Descent}
+% 使用モデル
+For both ML and IL, we used a 5-layer CNN consisting of four convolutional layers and one fully connected layer.
+The numbers of filters in the four convolutional layers were set to $[k, 2k, 4k, 8k]$, where $k$ denoted the base number of filters.
+
+% 初期値の設定
+In ML, the two models were denoted as Model 1 and Model 2. These two models were trained together from different initial weights. In IL, a single model initialized with the same initial weights as Model 1 was trained individually. We reported only the results of Model 1 for ML. We then compared them with those of the corresponding IL model. Each result was averaged over five independent runs with different initial weights.
+
+% 損失関数＋最適化
+The loss function for IL was the cross-entropy loss.
+For ML, the loss function consisted of the cross-entropy loss and the KL divergence between the prediction distributions of the two models.
+All models were trained for 500 epochs using SGD without momentum.
+The batch size was 128, and the learning rate was set to $1/\sqrt{1+t/512}$, where $t$ denoted the training step.
+
+\subsection{Parameter-wise Double Descent}
 % Overview
-This experiment compares filter-wise double descent behavior between ML and IL.
-Specifically, we analyze how the training and test error rates change as the base number of filters $k$ increases.
+This experiment compared the parameter-wise double descent behavior of ML and IL. We analyzed the resulting error curves by dividing them into regimes and comparing the behavior of ML and IL in each regime.
 
 % Setting
-The base number of filters $k$ is varied from 1 to 60. For each value of $k$, we evaluate the training and test error rates after 500 training epochs. These error curves are then used to classify the model widths into parameter-wise regimes.
-% Regime定義
-In double descent, the regimes are generally characterized by the model complexity relative to the training data. However, their exact boundaries are not strictly specified\cite{nakkiran_deep_2021}. Therefore, in this study, we operationally define the parameter-wise regimes based on the filter-wise double descent curve. The under-parameterized regime is defined as the region from the beginning of the analyzed range to the point where the test error starts to increase. The critically-parameterized regime is defined as the region from the onset of the test-error increase to the point where the training error falls below 0.05. The over-parameterized regime is defined as the region after the training error falls below 0.05.
+To construct the parameter-wise error curves, the base number of filters $k$ was varied from 1 to 60. For each value of $k$, we trained the models for 500 epochs and used the training and test error rates at the final epoch.
+% 図の説明
+Figure~\ref{fig:filter_wise} shows the training and test error rates as functions of the base number of filters $k$. The blue and red curves represent IL and ML, respectively, with solid lines for the test error rates and dashed lines for the training error rates.
 
 \begin{figure}[htb]
   \centering
   \includegraphics[width=0.8\linewidth]{fig/3_filter_wise.png}
-  \caption{Filter-wise double descent of IL and ML as the base number of filters $k$ is varied from 1 to 60.}
+  \caption{Parameter-wise double descent in IL and ML.}
   \label{fig:filter_wise}
 \end{figure}
 
-Figure~\ref{fig:filter_wise} shows the training and test error rates as functions of the base number of filters $k$.
-The blue and red curves represent IL and ML, respectively, while the solid and dashed lines represent the test and training error rates, respectively.
+As shown in Figure~\ref{fig:filter_wise}, both IL and ML exhibit parameter-wise double descent. Compared with IL, ML shows a lower test-error peak and shifts the peak toward larger values of $k$.
 
-As shown in Figure~\ref{fig:filter_wise}, both IL and ML exhibit filter-wise double descent.
-Compared with IL, ML suppresses the test-error peak and shifts the peak position toward larger values of $k$.
+To further analyze this difference, we divided the parameter-wise range into three regimes: the under-parameterized, critically-parameterized, and over-parameterized regimes. 
+These regimes are generally characterized by the model complexity relative to the training data. However, their exact boundaries are not strictly specified\cite{nakkiran_deep_2021}. In this study, we operationally defined the parameter-wise regimes based on the training and test error curves. The under-parameterized regime was defined as the region from the beginning of the analyzed range to the point where the test error started to increase. The critically-parameterized regime was defined as the region from the onset of the test-error increase to the point where the training error rate fell below 0.05. The over-parameterized regime was defined as the region after the training error rate fell below 0.05.
 
-To further analyze this difference, we classify the model widths into three parameter-wise regimes: the under-parameterized, critically-parameterized, and over-parameterized regimes.
+% 図の説明
+Based on these definitions, the under-parameterized regime corresponds to $k=1$--$4$ for IL and $k=1$--$5$ for ML. The critically-parameterized regime corresponds to $k=5$--$11$ for IL and $k=6$--$13$ for ML, while the over-parameterized regime corresponds to $k=12$--$60$ for IL and $k=14$--$60$ for ML. Figure~\ref{fig:filterwise_regime} summarizes these regime assignments for IL and ML. 
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.8\linewidth]{fig/4_filterwise_regime.png}
-\caption{Regime-wise comparison of filter-wise double descent in IL and ML, where the shaded regions indicate the three regimes.}
+\caption{Regime-wise comparison of parameter-wise double descent in IL and ML.}
 \label{fig:filterwise_regime}
 \end{figure}
 
-Figure~\ref{fig:filterwise_regime} visually summarizes the regime transitions of IL and ML.
-According to the regime definition above, the under-parameterized regime corresponds to $k=1$--$4$ for IL and $k=1$--$5$ for ML.
-The critically-parameterized regime corresponds to $k=5$--$11$ for IL and $k=6$--$13$ for ML, while the over-parameterized regime corresponds to $k=12$--$60$ for IL and $k=14$--$60$ for ML.
-From this comparison, we observe that the under-parameterized regime is longer in ML than in IL.
-The critically-parameterized regime also starts later and lasts longer in ML.
-Consequently, the transition to the over-parameterized regime is delayed in ML.
+This comparison shows that the under-parameterized regime is longer in ML than in IL. The critically-parameterized regime also starts later and lasts longer in ML. The transition to the over-parameterized regime is later in ML.
 
 \subsection{Epoch-wise Double Descent}
 % Overview
-This experiment compares epoch-wise double descent behavior between ML and IL.
-Specifically, we analyze how the training and test error rates change during training for different values of the base number of filters $k$.
+This experiment compared epoch-wise double descent behavior between ML and IL.
+Specifically, we analyzed how the training and test error rates changed during training for different values of the base number of filters $k$.
 
 \begin{figure}[htb]
   \centering
@@ -209,9 +206,9 @@ Specifically, we analyze how the training and test error rates change during tra
 
 Figure~\ref{fig:epoch_heatmap} shows the test error heatmaps of ML and IL.
 The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color represents the test error rate.
-The brackets above the heatmaps indicate the regimes identified from the filter-wise double descent results.
+The brackets above the heatmaps indicate the regimes identified from the parameter-wise double descent results.
 
-As shown in Fig.~\ref{fig:epoch_heatmap}, both ML and IL exhibit regime-dependent epoch-wise behavior.
+As shown in Fig.~\ref{fig:epoch_heatmap}, both ML and IL exhibit epoch-wise behavior that depends on the parameter-wise regime.
 In the under-parameterized regime, the test error generally decreases as training proceeds.
 In the critically-parameterized regime, the test error increases during training, indicating overfitting.
 In the over-parameterized regime, the test error shows epoch-wise double descent.
@@ -225,7 +222,7 @@ These results indicate that the epoch-wise behavior differs across the regimes i
 \end{figure}
 
 Figure~\ref{fig:epoch_curves} shows representative training and test error curves for selected widths in each regime.
-Figures~\ref{fig:epoch_curves} (a), (b), and (c) correspond to the under-parameterized, critically-parameterized, and over-parameterized regimes, respectively.
+Figure~\ref{fig:epoch_curves}(a), (b), and (c) correspond to the under-parameterized, critically-parameterized, and over-parameterized regimes, respectively.
 The solid and dashed lines represent the test and training error rates, respectively.
 
 In the under-parameterized regime, ML and IL show similar test error curves.
@@ -241,20 +238,20 @@ These results suggest that the effect of ML is most pronounced around the critic
 \end{figure}
 
 The representative curves show the local behavior at selected widths.
-To examine whether these differences are observed over the entire range of $k$ and epochs, Fig.~\ref{fig:epoch_diff} shows the difference heatmaps of the training and test error rates between ML and IL.
+To examine whether these differences are observed over the entire range of $k$ and epochs, Fig.~\ref{fig:epoch_diff} shows the difference heatmaps for the training and test error rates between ML and IL.
 The values are computed as ML minus IL.
 Thus, negative values indicate that ML achieves a lower error rate than IL, whereas positive values indicate that ML has a higher error rate than IL.
 
-The test error difference shows that ML achieves lower test error mainly around the critical transition.
+The test error difference shows that ML achieves lower test error mainly around the critically-parameterized regime.
 This result is consistent with the representative curves in Fig.~\ref{fig:epoch_curves}(b), where ML suppresses the increase in test error.
 On the other hand, in the over-parameterized regime, the difference in test error becomes relatively small, although ML shows larger fluctuations.
-The training error difference shows that ML tends to have higher training error than IL over a wide range of widths, especially around and after the critical transition.
+The training error difference shows that ML tends to have higher training error than IL over a wide range of widths, especially around and after the critically-parameterized regime.
 This indicates that ML converges more slowly to the training data than IL.
 
 \subsection{Variance Analysis Based on Bias--Variance Decomposition}
 % Overview
-This experiment compares the variance between ML and IL to further investigate their generalization behavior in double descent.
-Variance is related to overfitting and prediction stability, and we compute it using a cross-entropy-based bias--variance decomposition\cite{yang_rethinking_2020}.
+This experiment compared the variance between ML and IL to further investigate their generalization behavior in double descent.
+Variance is related to overfitting and prediction stability, and we computed it using a cross-entropy-based bias--variance decomposition\cite{yang_rethinking_2020}.
 
 For an input sample $x$, let $\pi_i(x)$ denote the prediction distribution of the $i$-th trained model.
 Following the cross-entropy-based bias--variance decomposition, the representative prediction distribution is defined as
@@ -270,7 +267,7 @@ Following the cross-entropy-based bias--variance decomposition, the representati
 \]
 where $N$ is the number of trained models.
 
-The variance is then computed by averaging the KL divergence over the trained models and the test set:
+The variance was then computed by averaging the KL divergence over the trained models and the test set:
 \[
 \mathrm{Variance}
 =
@@ -285,8 +282,8 @@ D_{\mathrm{KL}}
 \]
 where $\mathcal{D}_{\mathrm{test}}$ denotes the test set.
 
-In our experiments, we set $N=5$ and use five trained models with different initial weights.
-This computation is performed for each base number of filters $k$ and each training epoch.
+In our experiments, we set $N=5$ and used five trained models with different initial weights.
+This computation was performed for each base number of filters $k$ and each training epoch.
 
 \begin{figure}[htb]
   \centering
@@ -295,22 +292,23 @@ This computation is performed for each base number of filters $k$ and each train
   \label{fig:variance}
 \end{figure}
 
-Figure~\ref{fig:variance} shows the variance of IL and ML as functions of the base number of filters $k$ and training epoch.
-The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color indicates the variance value.
+Figure~\ref{fig:variance} shows the variance of IL and ML as functions of the base number of filters $k$ and the training epoch.
+The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color indicates the variance.
 The right panel shows the difference between ML and IL.
-In the Under-parameterized regime, IL and ML show similar variance values.
-In the Critical regime, the increase in variance is suppressed in ML compared with IL.
-This tendency is also confirmed in the difference plot, where ML shows lower variance than IL around the Critical regime.
-In the Over-parameterized regime, ML exhibits noticeable variance fluctuations in the early stage of training.
+
+In the under-parameterized regime, IL and ML show similar variance values.
+In the critically-parameterized regime, the increase in variance is suppressed in ML compared with IL.
+This tendency is also confirmed in the difference plot, where ML shows lower variance than IL around the critically-parameterized regime.
+In the over-parameterized regime, ML exhibits noticeable variance fluctuations in the early stage of training.
 
 \subsection{Analysis of Solution Geometry}
 % Overview
-This experiment compares the solution geometry between ML and IL.
-To analyze the sharpness and flatness of the obtained solutions, we first compute the top five eigenvalues of the Hessian matrix and then visualize the loss landscape around representative solutions.
+This experiment compared the solution geometry between ML and IL.
+To analyze the sharpness and flatness of the obtained solutions, we first computed the top five eigenvalues of the Hessian matrix and then visualized the loss landscape around representative solutions.
 
 % setup
-Following the common settings described in Section~{}, we compute the top five eigenvalues of the Hessian matrix for each trained model.
-The final value is obtained by averaging the top five eigenvalues over the five runs for each base number of filters $k$.
+Following the common settings described in Section~\ref{sec:experimental_setup}, we computed the top five eigenvalues of the Hessian matrix for each trained model.
+For each run, we averaged the top five eigenvalues, and the final value was obtained by averaging these values over the five runs for each base number of filters $k$.
 
 % results
 \begin{figure}[htb]
@@ -323,17 +321,17 @@ The final value is obtained by averaging the top five eigenvalues over the five 
 Figure~\ref{fig:hessian} shows the average of the top-five Hessian eigenvalues for IL and ML as a function of the base number of filters $k$.
 The horizontal axis represents the base number of filters $k$, and the vertical axis represents the average of the top-five Hessian eigenvalues.
 The blue and red curves represent IL and ML, respectively.
-The shaded regions indicate the Under-parameterized, Critically-parameterized, and Over-parameterized regimes.
+The shaded regions indicate the under-parameterized, critically-parameterized, and over-parameterized regimes.
 
-In the Under-parameterized regime, IL and ML show similar values, and no clear difference is observed.
-In the Critically-parameterized regime, the Hessian eigenvalues of ML are much smaller than those of IL.
-In the Over-parameterized regime, the values of both methods become small, and the difference between ML and IL is also small.
+In the under-parameterized regime, IL and ML show similar values, and no clear difference is observed.
+In the critically-parameterized regime, the Hessian eigenvalues of ML are much smaller than those of IL.
+In the over-parameterized regime, the values for both methods become small, and the difference between ML and IL is also small.
 
 
 \subsubsection{Loss Landscape Visualization}
 
 % setup
-We visualize the loss landscape around the solutions obtained by ML and IL.
+We visualized the loss landscape around the solutions obtained by ML and IL.
 For learned model parameters $\theta^{*}$, the two-dimensional loss surface is defined as
 \[
 f(\alpha, \beta)
@@ -342,10 +340,10 @@ L(\theta^{*} + \alpha \delta + \beta \eta),
 \]
 where $\delta$ and $\eta$ are direction vectors, and $\alpha$ and $\beta$ are displacement coefficients.
 
-In this experiment, we select $k=1$, $k=10$, and $k=60$ as representative values for the Under-parameterized, Critically-parameterized, and Over-parameterized regimes, respectively.
-The displacement coefficients $\alpha$ and $\beta$ are varied within the range $[-0.2,0.2]$, forming a $51\times51$ grid.
-For each of the five trained models, three sets of direction vectors are used.
-The final landscape is obtained by averaging the loss changes over all models and direction sets.
+In this experiment, we selected $k=1$, $k=10$, and $k=60$ as representative values for the under-parameterized, critically-parameterized, and over-parameterized regimes, respectively.
+The displacement coefficients $\alpha$ and $\beta$ were varied within the range $[-0.2,0.2]$, forming a $51\times51$ grid.
+For each of the five trained models, three sets of direction vectors were used.
+The final landscape was obtained by averaging the loss changes over all models and direction sets.
 
 
 % results
@@ -357,23 +355,22 @@ The final landscape is obtained by averaging the loss changes over all models an
 \end{figure}
 
 Figure~\ref{fig:landscape} shows the loss landscapes of IL and ML for the representative values of $k$ indicated by the arrows in Fig.~\ref{fig:hessian}.
-Specifically, $k=1$, $k=10$, and $k=60$ correspond to the Under-parameterized, Critically-parameterized, and Over-parameterized regimes, respectively.
+Specifically, $k=1$, $k=10$, and $k=60$ correspond to the under-parameterized, critically-parameterized, and over-parameterized regimes, respectively.
 
 For $k=1$, both IL and ML show relatively flat landscapes, and no clear difference is observed.
-For $k=10$, which corresponds to the Critically-parameterized regime, the loss landscape of IL is much sharper than that of ML.
-In contrast, ML shows a flatter landscape.
-For $k=60$, both IL and ML show relatively flat landscapes, and the difference between the two methods becomes small.
+For $k=10$, which corresponds to the critically-parameterized regime, the loss landscape of IL is much sharper than that of ML, whereas ML exhibits a flatter landscape.
+For $k=60$, both IL and ML again show relatively flat landscapes, and the difference between the two methods becomes small.
 
 These observations are consistent with the Hessian eigenvalue analysis.
 
 \subsection{Error Analysis on Noisy-label and Clean-label Samples}
 % Overview
-This experiment compares the training behavior of ML and IL on noisy-label and clean-label samples.
-Specifically, we analyze how each method fits samples with corrupted labels and samples with unchanged labels during training.
+This experiment compared the training behavior of ML and IL on noisy-label and clean-label samples.
+Specifically, we analyzed how each method fitted samples with corrupted labels and samples with unchanged labels during training.
 
-Based on the 20\% label-noise setting described in Section~3.1, we divide the training samples into noisy-label samples and clean-label samples.
-Noisy-label samples are the samples whose labels are replaced with incorrect labels, whereas clean-label samples are the remaining samples whose labels are unchanged.
-We then compute the error rates of ML and IL on each group during training.
+Based on the 20\% label-noise setting described in Section~3.1, we divided the training samples into noisy-label samples and clean-label samples.
+Noisy-label samples were defined as the samples whose labels were replaced with incorrect labels, whereas clean-label samples were defined as the remaining samples whose labels were unchanged.
+We then computed the error rates of ML and IL on each group during training.
 
 \begin{figure}[htb]
   \centering
@@ -391,14 +388,14 @@ We then compute the error rates of ML and IL on each group during training.
 
 Figure~\ref{fig:noisy_error} shows the error rates on noisy-label samples.
 Figure~\ref{fig:clean_error} shows the error rates on clean-label samples.
-In each figure, the left and middle panels show the error rates of IL and ML, respectively, and the right panel shows the difference between them.
+In each figure, the left and middle panels show the error rates of IL and ML, respectively, and the right panel shows the difference between ML and IL.
 
-For noisy-label samples, the difference between ML and IL is small in the Under-parameterized regime, where both methods show high error rates. 
-In the Critically-parameterized regime, ML maintains a higher error rate than IL, indicating that ML fits noisy-label samples more slowly. 
-In the Over-parameterized regime, ML shows large fluctuations in the early stage of training, suggesting unstable fitting behavior for noisy-label samples.
+For noisy-label samples, the difference between ML and IL is small in the under-parameterized regime, where both methods show high error rates.
+In the critically-parameterized regime, ML maintains a higher error rate than IL, indicating that ML fits noisy-label samples more slowly.
+In the over-parameterized regime, ML shows large fluctuations in the early stage of training, suggesting unstable fitting behavior for noisy-label samples.
 
-For clean-label samples, ML also shows slightly slower convergence than IL in the Critically-parameterized regime.
-In the Over-parameterized regime, ML exhibits small fluctuations in the early stage of training.
+For clean-label samples, ML also shows slightly slower convergence than IL in the critically-parameterized regime.
+In the over-parameterized regime, ML exhibits small fluctuations in the early stage of training.
 However, these differences are less pronounced than those observed for noisy-label samples.
 
 \section{Discussion}
