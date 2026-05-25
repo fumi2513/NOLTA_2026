@@ -227,7 +227,7 @@ Figure~\ref{fig:epoch_curves}(a), (b), and (c) correspond to the under-parameter
 % 結果
 Figure~\ref{fig:epoch_curves}(a) shows that ML and IL have similar test error curves in the under-parameterized regime. In Fig.~\ref{fig:epoch_curves}(b), ML suppresses the increase in test error observed in IL, while its training error decreases more slowly in the critically-parameterized regime. In Fig.~\ref{fig:epoch_curves}(c), ML exhibits larger fluctuations in test error during the early stage of training in the over-parameterized regime, and its final test error becomes comparable to that of IL. For the training error, ML converges more slowly than IL and shows oscillatory behavior as it approaches convergence.
 
-To examine whether the differences observed in Fig.~\ref{fig:epoch_curves} were consistent over the entire range of $k$ and training epochs, we calculated the ML--IL differences for the test and training error rates. Figure~\ref{fig:epoch_diff} shows the resulting difference heatmaps: Fig.~\ref{fig:epoch_diff}(a) shows the test error difference, and Fig.~\ref{fig:epoch_diff}(b) shows the training error difference. The values were computed as ML minus IL. Thus, negative values indicate that ML achieved a lower error rate than IL, whereas positive values indicate that ML had a higher error rate than IL.
+To examine whether the differences observed in Fig.~\ref{fig:epoch_curves} were consistent over the entire range of $k$ and training epochs, we calculated the ML--IL differences for the test and training error rates. Figure~\ref{fig:variance} shows the resulting variance heatmaps of IL and ML. The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color indicates the variance. The right panel shows the variance difference between ML and IL, computed as ML minus IL. Thus, negative values indicate that ML had lower variance than IL, whereas positive values indicate that ML had higher variance than IL.
 
 \begin{figure}[htb]
   \centering
@@ -243,23 +243,11 @@ In the over-parameterized regime, Fig.~\ref{fig:epoch_diff}(a) shows large early
 \subsection{Variance Analysis Based on Bias--Variance Decomposition}
 % Overview
 This experiment compared the variance between ML and IL to further investigate their generalization behavior in double descent.
-Variance is related to overfitting and prediction stability, and we computed it using a cross-entropy-based bias--variance decomposition\cite{yang_rethinking_2020}.
+Variance is related to overfitting and prediction stability, and was computed using a cross-entropy-based bias--variance decomposition\cite{yang_rethinking_2020}.
 
 For an input sample $x$, let $\pi_i(x)$ denote the prediction distribution of the $i$-th trained model.
-Following the cross-entropy-based bias--variance decomposition, the representative prediction distribution is defined as
-\[
-\bar{\pi}(x)
-=
-\mathrm{Normalize}
-\left(
-\exp\left(
-\frac{1}{N}\sum_{i=1}^{N}\log \pi_i(x)
-\right)
-\right),
-\]
-where $N$ is the number of trained models.
+The variance was computed by averaging the KL divergence over the trained models and the test samples:
 
-The variance was then computed by averaging the KL divergence over the trained models and the test set:
 \[
 \mathrm{Variance}
 =
@@ -272,26 +260,37 @@ D_{\mathrm{KL}}
 \bar{\pi}(x)\,\|\,\pi_i(x)
 \right),
 \]
-where $\mathcal{D}_{\mathrm{test}}$ denotes the test set.
 
+where $\mathcal{D}_{\mathrm{test}}$ denotes the test set and $\bar{\pi}(x)$ is the representative prediction distribution.
+Following the cross-entropy-based bias--variance decomposition, $\bar{\pi}(x)$ is defined as
+
+\[
+\bar{\pi}(x)
+=
+\mathrm{Normalize}
+\left(
+\exp\left(
+\frac{1}{N}\sum_{i=1}^{N}\log \pi_i(x)
+\right)
+\right),
+\]
+
+where $N$ is the number of trained models.
 In our experiments, we set $N=5$ and used five trained models with different initial weights.
-This computation was performed for each base number of filters $k$ and each training epoch.
+The variance was computed for each base number of filters $k$ at each training epoch.
+
+Figure~\ref{fig:variance} shows the resulting variance heatmaps of IL and ML.
+The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color indicates the variance.
+The right panel shows the difference between ML and IL.
 
 \begin{figure}[htb]
   \centering
   \includegraphics[width=0.8\linewidth]{fig/9_variance.png}
-  \caption{Variance maps of IL, ML, and the difference between ML and IL.}
+  \caption{Variance heatmaps of IL and ML and their difference (ML--IL) over the base number of filters $k$ and training epochs.}
   \label{fig:variance}
 \end{figure}
 
-Figure~\ref{fig:variance} shows the variance of IL and ML as functions of the base number of filters $k$ and the training epoch.
-The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color indicates the variance.
-The right panel shows the difference between ML and IL.
-
-In the under-parameterized regime, IL and ML show similar variance values.
-In the critically-parameterized regime, the increase in variance is suppressed in ML compared with IL.
-This tendency is also confirmed in the difference plot, where ML shows lower variance than IL around the critically-parameterized regime.
-In the over-parameterized regime, ML exhibits noticeable variance fluctuations in the early stage of training.
+Figure~\ref{fig:variance} shows that IL and ML have similar variance values in the under-parameterized regime. In the critically-parameterized regime, ML has lower variance than IL, indicating that ML suppresses the increase in variance observed in IL. In the over-parameterized regime, ML shows noticeable variance fluctuations during the early stage of training and often has higher variance than IL in this stage.
 
 \subsection{Analysis of Solution Geometry}
 % Overview
