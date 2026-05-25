@@ -189,10 +189,10 @@ This comparison shows that the under-parameterized regime is longer in ML than i
 
 \subsection{Training Dynamics across Parameter-wise Regimes}
 % Overview
-This experiment analyzed the training dynamics of ML and IL across the parameter-wise regimes. Specifically, we examined how the training and test error rates changed over training epochs for different values of the base number of filters $k$.
+This experiment analyzed the training dynamics of ML and IL across the parameter-wise regimes. Specifically, we examined how the training and test error rates changed over training epochs as the base number of filters $k$ was varied.
 
 % 図説明
-Figure~\ref{fig:epoch_heatmap_test} shows the test error heatmaps of IL and ML. The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color represents the test error rate. The brackets above the heatmaps indicate the regimes identified from the parameter-wise double descent analysis.
+Figures~\ref{fig:epoch_heatmap_test} and~\ref{fig:epoch_heatmap_train} show the test and training error heatmaps of IL and ML, respectively. In both figures, the horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color represents the corresponding error rate. The brackets above the heatmaps indicate the regimes identified from the parameter-wise double descent analysis.
 
 \begin{figure}[htb]
   \centering
@@ -200,8 +200,6 @@ Figure~\ref{fig:epoch_heatmap_test} shows the test error heatmaps of IL and ML. 
   \caption{Test error heatmaps of IL and ML over training epochs and the base number of filters $k$.}
   \label{fig:epoch_heatmap_test}
 \end{figure}
-
-Figure~\ref{fig:epoch_heatmap_train} shows the training error heatmaps of IL and ML. The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color represents the training error rate. The brackets above the heatmaps indicate the regimes identified from the parameter-wise double descent analysis.
 
 \begin{figure}[htb]
   \centering
@@ -211,7 +209,7 @@ Figure~\ref{fig:epoch_heatmap_train} shows the training error heatmaps of IL and
 \end{figure}
 
 % 結果
-As shown in Fig.~\ref{fig:epoch_heatmap}, the test-error behavior of both ML and IL differs across the parameter-wise regimes. In the under-parameterized regime, the test error generally decreases as training proceeds. In the critically-parameterized regime, the test error increases during training, indicating overfitting. In the over-parameterized regime, the test error shows epoch-wise double descent.
+As shown in Fig.~\ref{fig:epoch_heatmap_test}, the test-error behavior of both ML and IL differs across the parameter-wise regimes. In the under-parameterized regime, the test error generally decreases as training proceeds. In the critically-parameterized regime, the test error increases during training, indicating overfitting. In the over-parameterized regime, the test error shows epoch-wise double descent.
 
 Figure~\ref{fig:epoch_heatmap_train} shows that the training error decreased as training proceeded in both IL and ML. However, ML tended to converge more slowly than IL, especially around and after the critically-parameterized regime.
 
@@ -227,7 +225,7 @@ Figure~\ref{fig:epoch_curves}(a), (b), and (c) correspond to the under-parameter
 \end{figure}
 
 % 結果
-Figure~\ref{fig:epoch_curves}(a) shows that ML and IL have similar test error curves in the under-parameterized regime. In Fig.~\ref{fig:epoch_curves}(b), ML suppresses the increase in test error observed in IL, while its training error decreases more slowly in the critically-parameterized regime. In Fig.~\ref{fig:epoch_curves}(c), ML exhibits larger fluctuations in both training and test error during the early stage of training in the over-parameterized regime, whereas its final test error becomes comparable to that of IL.
+Figure~\ref{fig:epoch_curves}(a) shows that ML and IL have similar test error curves in the under-parameterized regime. In Fig.~\ref{fig:epoch_curves}(b), ML suppresses the increase in test error observed in IL, while its training error decreases more slowly in the critically-parameterized regime. In Fig.~\ref{fig:epoch_curves}(c), ML exhibits larger fluctuations in test error during the early stage of training in the over-parameterized regime, and its final test error becomes comparable to that of IL. For the training error, ML converges more slowly than IL and shows oscillatory behavior as it approaches convergence.
 
 To examine whether the differences observed in Fig.~\ref{fig:epoch_curves} were consistent over the entire range of $k$ and training epochs, we calculated the ML--IL differences for the test and training error rates. Figure~\ref{fig:epoch_diff} shows the resulting difference heatmaps: Fig.~\ref{fig:epoch_diff}(a) shows the test error difference, and Fig.~\ref{fig:epoch_diff}(b) shows the training error difference. The values were computed as ML minus IL. Thus, negative values indicate that ML achieved a lower error rate than IL, whereas positive values indicate that ML had a higher error rate than IL.
 
@@ -240,7 +238,7 @@ To examine whether the differences observed in Fig.~\ref{fig:epoch_curves} were 
 
 % 結果
 The test error difference in Fig.~\ref{fig:epoch_diff}(a) shows that ML achieved lower test error mainly around the critically-parameterized regime. In the same regime, the training error difference in Fig.~\ref{fig:epoch_diff}(b) shows that ML had higher training error than IL. These trends are consistent with the representative curves in Fig.~\ref{fig:epoch_curves}(b), where ML suppressed the increase in test error while its training error decreased more slowly.
-In the over-parameterized regime, Fig.~\ref{fig:epoch_diff}(a) and Fig.~\ref{fig:epoch_diff}(b) show that both the test and training error differences fluctuated during the early stage of training. This trend is consistent with Fig.~\ref{fig:epoch_curves}(c), where ML exhibited larger early-stage fluctuations in both training and test error, while its final test error became comparable to that of IL.
+In the over-parameterized regime, Fig.~\ref{fig:epoch_diff}(a) shows large early-stage variations in the test error difference, indicating that the test error of ML fluctuated relative to that of IL. In contrast, Fig.~\ref{fig:epoch_diff}(b) shows that the training error difference was mostly positive in the early stage, indicating that ML maintained a higher training error than IL and converged more slowly to the training data. In the later stage, the test error difference became small, suggesting that the final test error of ML was comparable to that of IL. This trend is consistent with Fig.~\ref{fig:epoch_curves}(c), where ML exhibited larger early-stage fluctuations while eventually reaching a similar test error to IL.
 
 \subsection{Variance Analysis Based on Bias--Variance Decomposition}
 % Overview
