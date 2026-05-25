@@ -292,14 +292,17 @@ The right panel shows the difference between ML and IL.
 
 Figure~\ref{fig:variance} shows that IL and ML have similar variance values in the under-parameterized regime. In the critically-parameterized regime, ML has lower variance than IL, indicating that ML suppresses the increase in variance observed in IL. In the over-parameterized regime, ML shows noticeable variance fluctuations during the early stage of training and often has higher variance than IL in this stage.
 
-\subsection{Analysis of Solution Geometry}
+\subsection{Analysis of Loss Landscape Geometry}
 % Overview
-This experiment compared the solution geometry between ML and IL.
-To analyze the sharpness and flatness of the obtained solutions, we first computed the top five eigenvalues of the Hessian matrix and then visualized the loss landscape around representative solutions.
+This experiment compared the loss landscape geometry between ML and IL.
+To analyze the sharpness of the loss landscape around the obtained solutions, we first computed the top five eigenvalues of the Hessian matrix and then visualized the loss landscape around representative solutions.
 
+\paragraph{Hessian eigenvalue analysi}
 % setup
-Following the common settings described in Section~\ref{sec:experimental_setup}, we computed the top five eigenvalues of the Hessian matrix for each trained model.
-For each run, we averaged the top five eigenvalues, and the final value was obtained by averaging these values over the five runs for each base number of filters $k$.
+The Hessian matrix consists of the second-order derivatives of the loss function and describes the local curvature around an obtained solution. Larger Hessian eigenvalues indicate sharper local curvature. We trained the models with each base number of filters $k$ for 500 epochs, computed the five largest Hessian eigenvalues at the final epoch, and averaged them.
+
+% 図の説明
+Figure~\ref{fig:hessian} compares IL and ML in terms of the average of the five largest Hessian eigenvalues. The horizontal axis represents the base number of filters $k$, and the vertical axis represents the average of the five largest Hessian eigenvalues. The blue and red curves represent IL and ML, respectively, and the shaded regions indicate the parameter-wise regimes defined based on the parameter-wise double descent results.
 
 % results
 \begin{figure}[htb]
@@ -309,17 +312,9 @@ For each run, we averaged the top five eigenvalues, and the final value was obta
   \label{fig:hessian}
 \end{figure}
 
-Figure~\ref{fig:hessian} shows the average of the top-five Hessian eigenvalues for IL and ML as a function of the base number of filters $k$.
-The horizontal axis represents the base number of filters $k$, and the vertical axis represents the average of the top-five Hessian eigenvalues.
-The blue and red curves represent IL and ML, respectively.
-The shaded regions indicate the under-parameterized, critically-parameterized, and over-parameterized regimes.
+Figure~\ref{fig:hessian} shows that IL and ML have comparable eigenvalues in the under-parameterized regime. In contrast, ML exhibits much smaller values than IL in the critically-parameterized regime. In the over-parameterized regime, both curves decrease to small values, and the difference between IL and ML becomes small.
 
-In the under-parameterized regime, IL and ML show similar values, and no clear difference is observed.
-In the critically-parameterized regime, the Hessian eigenvalues of ML are much smaller than those of IL.
-In the over-parameterized regime, the values for both methods become small, and the difference between ML and IL is also small.
-
-
-\subsubsection{Loss Landscape Visualization}
+\paragraph{Loss Landscape Visualization}
 
 % setup
 We visualized the loss landscape around the solutions obtained by ML and IL.
