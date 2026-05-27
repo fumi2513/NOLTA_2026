@@ -343,12 +343,11 @@ Figure~\ref{fig:landscape}(a) shows that IL and ML have similarly flat loss land
 
 \subsection{Error Analysis on Noisy-label and Clean-label Samples}
 % Overview
-This experiment compared the training behavior of ML and IL on noisy-label and clean-label samples.
-Specifically, we analyzed how each method fitted samples with corrupted labels and samples with unchanged labels during training.
+This experiment compared the training behavior of ML and IL on noisy-label and clean-label samples. Specifically, we analyzed how ML and IL fit noisy-label samples, whose labels were corrupted, and clean-label samples, whose labels remained unchanged, over the course of training.
 
-Based on the 20\% label-noise setting described in Section~3.1, we divided the training samples into noisy-label samples and clean-label samples.
-Noisy-label samples were defined as the samples whose labels were replaced with incorrect labels, whereas clean-label samples were defined as the remaining samples whose labels were unchanged.
-We then computed the error rates of ML and IL on each group during training.
+In the 20\% label-noise setting, we divided the training samples into two groups: noisy-label samples and clean-label samples. Noisy-label samples were those whose labels were replaced with incorrect labels, whereas clean-label samples were the remaining samples whose labels were unchanged. We computed the error rates of ML and IL for each group during training.
+
+Figure~\ref{fig:noisy_error} shows the error-rate heatmaps on noisy-label samples, and Figure~\ref{fig:clean_error} shows those on clean-label samples. In each figure, the left and middle panels show the error rates of IL and ML, respectively. The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color indicates the error rate. The right panel shows the difference between ML and IL, where positive values indicate that ML has a higher error rate than IL. The brackets above the panels indicate the under-, critically-, and over-parameterized regimes.
 
 \begin{figure}[htb]
   \centering
@@ -364,17 +363,8 @@ We then computed the error rates of ML and IL on each group during training.
   \label{fig:clean_error}
 \end{figure}
 
-Figure~\ref{fig:noisy_error} shows the error rates on noisy-label samples.
-Figure~\ref{fig:clean_error} shows the error rates on clean-label samples.
-In each figure, the left and middle panels show the error rates of IL and ML, respectively, and the right panel shows the difference between ML and IL.
-
-For noisy-label samples, the difference between ML and IL is small in the under-parameterized regime, where both methods show high error rates.
-In the critically-parameterized regime, ML maintains a higher error rate than IL, indicating that ML fits noisy-label samples more slowly.
-In the over-parameterized regime, ML shows large fluctuations in the early stage of training, suggesting unstable fitting behavior for noisy-label samples.
-
-For clean-label samples, ML also shows slightly slower convergence than IL in the critically-parameterized regime.
-In the over-parameterized regime, ML exhibits small fluctuations in the early stage of training.
-However, these differences are less pronounced than those observed for noisy-label samples.
+Figure~\ref{fig:noisy_error} shows that the difference between ML and IL is small in the under-parameterized regime, where both methods show high error rates. In the critically-parameterized regime, ML maintains a higher error rate than IL. In the over-parameterized regime, ML shows large fluctuations in the early stage of training.
+Figure~\ref{fig:clean_error} shows that the difference between ML and IL is also small in the under-parameterized regime. In the critically-parameterized regime, ML shows slightly higher error rates than IL. In the over-parameterized regime, ML exhibits small fluctuations in the early stage of training. These differences are less pronounced than those observed for noisy-label samples.
 
 \section{Discussion}
 \paragraph{Why ML improves generalization in the Critically-Parameterized Regime.}
