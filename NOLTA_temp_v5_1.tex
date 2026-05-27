@@ -312,12 +312,13 @@ Figure~\ref{fig:hessian} compares IL and ML in terms of the average of the five 
   \label{fig:hessian}
 \end{figure}
 
-Figure~\ref{fig:hessian} shows that IL and ML have comparable eigenvalues in the under-parameterized regime. In contrast, ML exhibits much smaller values than IL in the critically-parameterized regime. In the over-parameterized regime, both curves decrease to small values, and the difference between IL and ML becomes small.
+Figure~\ref{fig:hessian} shows that IL and ML have comparable eigenvalues in the under-parameterized regime. In contrast, ML exhibits much smaller values than IL in the critically-parameterized regime. In the over-parameterized regime, both IL and ML show small Hessian eigenvalues. IL is slightly larger than ML, but the difference between IL and ML is small.
 
 \paragraph{Loss Landscape Visualization}
 
 % setup
-We visualized the loss landscape around the solutions obtained by ML and IL.
+The loss landscape represents how the loss value changes when the model parameters are perturbed around an obtained solution. A flatter loss landscape suggests that the obtained solution lies in a flatter local minimum\cite{li_visualizing_2018}.
+
 For learned model parameters $\theta^{*}$, the two-dimensional loss surface is defined as
 \[
 f(\alpha, \beta)
@@ -326,11 +327,9 @@ L(\theta^{*} + \alpha \delta + \beta \eta),
 \]
 where $\delta$ and $\eta$ are direction vectors, and $\alpha$ and $\beta$ are displacement coefficients.
 
-In this experiment, we selected $k=1$, $k=10$, and $k=60$ as representative values for the under-parameterized, critically-parameterized, and over-parameterized regimes, respectively.
-The displacement coefficients $\alpha$ and $\beta$ were varied within the range $[-0.2,0.2]$, forming a $51\times51$ grid.
-For each of the five trained models, three sets of direction vectors were used.
-The final landscape was obtained by averaging the loss changes over all models and direction sets.
+In this experiment, we selected $k=1$, $k=10$, and $k=60$ as representative values for the under-parameterized, critically-parameterized, and over-parameterized regimes, respectively, and visualized the loss landscape for each value. The displacement coefficients $\alpha$ and $\beta$ were varied within the range $[-0.2,0.2]$, forming a $51\times51$ grid. To reduce the dependence on model initialization and the choice of direction vectors, we used five trained models and three direction sets for each model, and averaged the loss changes over all models and direction sets to obtain the final landscape.
 
+Figure~\ref{fig:landscape} shows the loss landscapes of IL and ML for the representative values of $k$ selected from the three parameter-wise regimes.
 
 % results
 \begin{figure}[htb]
@@ -340,14 +339,7 @@ The final landscape was obtained by averaging the loss changes over all models a
   \label{fig:landscape}
 \end{figure}
 
-Figure~\ref{fig:landscape} shows the loss landscapes of IL and ML for the representative values of $k$ indicated by the arrows in Fig.~\ref{fig:hessian}.
-Specifically, $k=1$, $k=10$, and $k=60$ correspond to the under-parameterized, critically-parameterized, and over-parameterized regimes, respectively.
-
-For $k=1$, both IL and ML show relatively flat landscapes, and no clear difference is observed.
-For $k=10$, which corresponds to the critically-parameterized regime, the loss landscape of IL is much sharper than that of ML, whereas ML exhibits a flatter landscape.
-For $k=60$, both IL and ML again show relatively flat landscapes, and the difference between the two methods becomes small.
-
-These observations are consistent with the Hessian eigenvalue analysis.
+Figure~\ref{fig:landscape}(a) shows that IL and ML have similarly flat loss landscapes in the under-parameterized regime. In Fig.~\ref{fig:landscape}(b), ML exhibits a flatter loss landscape than IL in the critically-parameterized regime. Figure~\ref{fig:landscape}(c) shows that the difference between IL and ML is small in the over-parameterized regime, although ML has a flatter loss landscape.
 
 \subsection{Error Analysis on Noisy-label and Clean-label Samples}
 % Overview
