@@ -367,74 +367,40 @@ Figure~\ref{fig:noisy_error} shows that the difference between ML and IL is smal
 Figure~\ref{fig:clean_error} shows that the difference between ML and IL is also small in the under-parameterized regime. In the critically-parameterized regime, ML shows slightly higher error rates than IL. In the over-parameterized regime, ML exhibits small fluctuations in the early stage of training. These differences are less pronounced than those observed for noisy-label samples.
 
 \section{Discussion}
+This section interprets the experimental results to clarify why ML improves generalization and why its effect differs across parameter-wise regimes.
+
 \paragraph{Why ML improves generalization in the Critically-Parameterized Regime.}
 
-The experimental results indicate that Mutual learning (ML) is particularly effective in the Critically-Parameterized Regime.
-In the filter-wise analysis, ML shows lower test error than Individual learning (IL) around this regime.
-In addition, the peak of double descent is suppressed and shifted toward larger model widths.
-These results suggest that ML changes not only the final test performance but also the process by which models fit the training data.
+The lower test error of ML in the critically-parameterized regime is closely related to its tendency to reach flatter local minima. In the parameter-wise analysis, ML shows lower test error than IL around this regime. In addition, the Hessian eigenvalue analysis and loss landscape visualization indicate that ML tends to reach flatter local minima than IL. Since flatter local minima are associated with better generalization performance~\cite{hochreiter1997flat}, the lower test error of ML can be interpreted as resulting partly from its tendency to guide models toward such flatter solutions.
 
-A possible reason for this behavior is that ML suppresses rapid overfitting to noisy labels.
-In ML, each model is trained while matching its prediction distribution to that of the other model.
-Therefore, unlike IL, each model does not fit noisy labels only based on its own prediction.
-This interaction can delay excessive fitting to noisy-label samples and make the fitting process more gradual.
-As a result, the onset of the Critically-Parameterized Regime shifts toward larger model widths.
+A possible reason why ML tends to reach flatter local minima is that it suppresses rapid fitting to noisy-label samples. In the noisy-label analysis, ML converges more slowly than IL on noisy-label samples in the critically-parameterized regime, whereas the difference between ML and IL is smaller on clean-label samples. This result suggests that ML mainly suppresses rapid fitting to corrupted labels rather than simply slowing down the entire training process. In ML, each model is trained while aligning its prediction distribution with that of the other model. Even if one model begins to fit a corrupted label, the prediction distribution of the other model can prevent it from being strongly driven by that label. This interaction makes the fitting process more gradual for noisy-label samples. By suppressing such fitting, ML may reduce the tendency to converge to solutions that strongly depend on noisy-label samples and instead guide the models toward flatter local minima.
 
-This interpretation is also supported by the analysis of noisy-label and clean-label samples.
-In the Critically-Parameterized Regime, ML converges more slowly than IL on noisy-label samples.
-This suggests that ML does not simply slow down the entire training process, but rather suppresses rapid fitting to corrupted labels.
-Since overfitting to noisy labels can increase the sensitivity of the model to initialization and training samples, suppressing such fitting can lead to more stable predictions.
-
-The variance analysis further supports this interpretation.
-In the Critically-Parameterized Regime, the increase in variance is suppressed by ML compared with IL.
-This indicates that ML reduces the variation of prediction distributions among models trained from different initial weights.
-Moreover, the Hessian eigenvalue analysis and loss landscape visualization show that ML tends to converge to flatter solutions than IL.
-These results suggest that ML improves generalization by suppressing overfitting to noisy labels, reducing prediction variance, and guiding the models toward flatter minima.
+The variance analysis shows that ML also suppresses the increase in prediction variance in the critically-parameterized regime. This result indicates that the prediction distributions of ML vary less across models trained from different initial weights than those of IL. Since rapid fitting to corrupted labels can make the learned solution strongly depend on initialization, the reduced variance is consistent with the interpretation that ML mitigates such fitting. Thus, the suppression of noisy-label fitting may contribute not only to flatter local minima but also to more stable predictions, leading to lower test error.
 
 \paragraph{Why ML shows different behavior across regimes.}
 
-The effect of Mutual learning (ML) differs depending on the model-width regime.
-This is because the role of model capacity and the stability of the learned solution change as the number of parameters increases.
-In other words, ML does not affect all model widths in the same way, but its effect appears differently according to how easily the model can fit the training data, including noisy labels.
+The effect of ML differs across the parameter-wise regimes. This regime-dependent behavior can be interpreted from the viewpoint of model capacity and sensitivity to noisy-label samples.
 
-In the Under-Parameterized Regime, both ML and Individual learning (IL) have limited model capacity.
-Therefore, neither method can fully fit the training data, and excessive fitting to noisy labels is unlikely to occur.
-As a result, the solutions obtained by ML and IL tend to be similar, and the difference between their error rates remains small.
-In this regime, the regularizing effect of ML is not clearly observed because the models are still constrained mainly by insufficient capacity.
+In the under-parameterized regime, the difference in test error between ML and IL is small. The Hessian eigenvalue analysis and loss landscape visualization also show that the solutions obtained by ML and IL have similar sharpness and landscape geometry. These results suggest that ML and IL behave similarly when the model capacity is limited. Since the models cannot fully fit the training data in this regime, rapid fitting to noisy-label samples is unlikely to occur. Therefore, the effect of ML is not clearly observed.
 
-In the Critically-Parameterized Regime, the model starts to fit the training data more closely.
-This regime is unstable because small changes in initialization or noisy samples can strongly affect the learned solution.
-Therefore, IL is more likely to overfit noisy labels and show increased test error.
-In contrast, ML suppresses rapid fitting to noisy labels by aligning the prediction distributions of two models.
-Thus, the effect of ML becomes most apparent in this regime, where it reduces test error, suppresses variance, and leads to flatter solutions.
+In the critically-parameterized regime, ML shows lower test error than IL. The Hessian eigenvalue analysis and loss landscape visualization also indicate that ML tends to reach flatter local minima than IL, and the variance analysis shows that ML suppresses the increase in prediction variance. In this regime, the model capacity becomes sufficient to fit the training data, making the learned solution sensitive to noisy-label samples and initialization. Therefore, IL is more likely to fit corrupted labels rapidly and converge to sharper solutions. In contrast, ML suppresses rapid fitting to noisy-label samples through the interaction between the two models. As a result, the effect of ML becomes most apparent in this regime, where it guides the models toward flatter local minima, reduces prediction variance, and lowers the test error.
 
-In the Over-Parameterized Regime, the model has sufficiently large capacity to fit the training data.
-Therefore, both ML and IL can eventually reach solutions with similar test performance.
-However, the larger number of parameters also increases the freedom of possible solutions.
-Since the two models in ML are initialized differently, they may follow different fitting paths in the early stage of training.
-At the same time, ML forces their prediction distributions to be consistent through the KL-divergence term.
-This interaction can make the learning dynamics unstable at the beginning of training, leading to larger fluctuations in the error rate.
+In the over-parameterized regime, the final difference in test error between ML and IL becomes small. The Hessian eigenvalue analysis and loss landscape visualization also show that the solutions obtained by ML and IL have similar sharpness and landscape geometry. These results suggest that both methods eventually reach solutions with similar properties when the model capacity is sufficiently large. Since the models have enough capacity to fit the training data in this regime, the difference between ML and IL is less apparent in the final test performance.
 
-Overall, these results suggest that the regime-dependent behavior of ML is caused by the balance between model capacity, sensitivity to noisy labels, and the freedom of possible solutions.
-ML has little effect in the Under-Parameterized Regime because the models lack sufficient capacity.
-It is most effective in the Critically-Parameterized Regime because the models are sensitive to noisy labels and initialization.
-In the Over-Parameterized Regime, its effect appears mainly in the transient training dynamics rather than in the final test error.
+However, ML shows larger fluctuations in the early stage of training. Since the two models in ML have different initial weights, their prediction distributions can differ at the beginning of training. The consistency loss then forces the two models to align their prediction distributions, even when these predictions are still unstable. This can make the learning dynamics of ML temporarily unstable and lead to larger fluctuations in the error rate.
+
+Overall, these results suggest that the effect of ML depends on the balance between model capacity and sensitivity to noisy-label samples: it is limited in the under-parameterized regime, most apparent in the critically-parameterized regime, and mainly appears in transient learning dynamics in the over-parameterized regime.
 
 \section{Conclusions}
 
-This study analyzed the generalization process of Mutual learning (ML) through the lens of double descent.
-We compared ML with Individual learning (IL) in terms of filter-wise double descent, epoch-wise double descent, variance, Hessian eigenvalues, and loss landscape geometry.
+This study analyzed the generalization process of ML from the perspective of double descent.
+We compared ML with IL in terms of parameter-wise double descent. We further examined training and test error behavior, variance, Hessian eigenvalues, and loss landscape geometry in each parameter-wise regime.
 
-The experimental results showed that both ML and IL exhibit double descent behavior.
-However, ML tended to delay the transition into the Critical Regime and suppress the increase in test error, especially around the Critical Regime.
-This suggests that ML can reduce overfitting during the learning process.
+The experimental results showed that ML suppressed the increase in test error compared with IL, especially around the critically-parameterized regime.
+This improved generalization is attributed to the fact that models trained with ML tend to converge to flatter local minima.
+Such flatter minima suppress the increase in variance, thereby reducing the test error and improving the generalization performance.
 
-The variance analysis further showed that ML suppresses the increase in variance around the Critical Regime.
-In addition, the Hessian eigenvalue analysis and loss landscape visualization indicated that ML tends to converge to flatter solutions than IL.
-These results suggest that the generalization improvement of ML is related not only to the final test error but also to changes in variance and loss landscape geometry.
-
-Future work will focus on clarifying why ML achieves a lower error rate in the Critical Regime.
-In particular, we plan to investigate how the similarity of learned representations between models affects this behavior, using methods such as centered kernel alignment (CKA).
+Future work will focus on clarifying the mechanism by which ML encourages models to converge to flatter local minima in the critically-parameterized regime.
 
 \acknowledgments
 \textcolor{blue}{(if any)}
