@@ -27,7 +27,7 @@
 \AUTHOR*{%
 \author{Fumika Komori}{1}\orcid{0009-0002-0232-8790},
 \author*{Keiichi Nakanishi}{1}\orcid{0009-0005-7638-2679},
-\author{Terumasa Tokunaga}{2}{3}\orcid{0000-0003-1091-2022}
+\author{Terumasa Tokunaga}{2,3}\orcid{0000-0003-1091-2022}
 }
 
 
@@ -50,11 +50,12 @@ Technology 680-4 Kawazu Iizuka-shi, Fukuoka 820-8502, JAPAN}{3}
 \begin{document}
 
 \begin{abstract}
-Scaling laws indicate that generalization improves with increasing data, model size, and computation, but such scaling requires substantial resources. As an alternative, collaborative training frameworks such as Mutual learning (ML) have attracted attention. However, how consistency-based interactions in ML affect the generalization process remains unclear. This study analyzes ML by comparing it with Individual learning (IL) across the regimes of double descent. The results show that ML exhibits regime-dependent behavior and is especially effective in the critically-parameterized regime. Further analyses suggest that ML delays fitting to noisy-label samples and guides models toward flatter minima, providing insight into multi-model training paradigms.
+% 97word
+Scaling laws in deep learning indicate that generalization performance improves with increasing data, model size, and computation, but such scaling requires substantial resources. As an alternative, collaborative training frameworks such as Mutual learning (ML) have attracted attention. However, how interactions among models in ML affect the generalization process remains unclear. By comparing ML with Individual learning across parameter-wise double-descent regimes, we show that ML exhibits regime-dependent behavior and is especially effective in the critically-parameterized regime. Further analyses suggest that ML delays fitting to noisy-label samples and guides models toward flatter minima, providing insight into multi-model training paradigms.
 \end{abstract}
 
 \begin{keywords}
-NOLTA, template, nolta.cls, up to six words
+Deep learning, Mutual learning, generalization dynamics, double descent, bias--variance decomposition, loss landscape
 \end{keywords}
 
 \maketitle
@@ -62,13 +63,13 @@ NOLTA, template, nolta.cls, up to six words
 \section{Introduction}
 Deep learning has achieved remarkable success in various fields, such as image recognition and natural language processing. The generalization performance of deep neural networks has often been improved by increasing model size, the amount of training data, and computational resources\cite{kaplan_scaling_2020}. This tendency is often characterized by scaling laws, which describe how model performance improves as these resources are scaled up.
 
-However, such resource-based scaling is not always applicable in practical situations. In some domains, such as industrial anomaly detection and medical applications, it is difficult to collect a large amount of labeled data, especially for rare or abnormal cases. In addition, some applications must be performed under limited computational resources, memory capacity, or inference time. Therefore, it is important to explore alternative learning paradigms that can improve generalization performance without simply relying on larger models, larger datasets, or larger computational budgets.
+However, such resource-based scaling is not always applicable in practical situations. In some domains, such as industrial anomaly detection and medical applications, it is difficult to obtain large amounts of data, especially data containing rare or abnormal cases. In addition, some applications must be performed under limited computational resources, memory capacity, or inference time. Therefore, it is important to explore alternative learning paradigms that can improve generalization performance without simply relying on larger models, larger datasets, or larger computational budgets.
 
 In recent years, collaborative learning frameworks using multiple models have attracted attention as one possible approach. These frameworks use the predictions of other models as additional supervision during training, thereby improving generalization performance. Since model collaboration is required only during training, these frameworks can improve model performance without increasing the computational cost at inference time.
 
 A representative example of such frameworks is Mutual learning (ML)\cite{zhang_deep_2018}, in which multiple models are trained simultaneously while referring to each other's prediction distributions. Unlike conventional teacher-student approaches, ML does not require a fixed pre-trained teacher model. In ML, each model is trained using a loss function consisting of a standard supervised loss and a KL-divergence-based consistency loss between prediction distributions. Previous studies have shown that ML models often achieve better generalization performance than individual learning models. However, it remains unclear how ML improves model performance, particularly how interactions between models during training contribute to this improvement.
 
-In this study, the generalization process of Mutual learning (ML) was analyzed by comparing ML models with Individual learning (IL) models. To analyze this process, we focused on the double descent phenomenon\cite{belkin_reconciling_2019,nakkiran_deep_2021}, which describes non-monotonic changes in test error as model complexity or training progress increases. We first analyzed parameter-wise double descent by varying the base number of filters and defined the under-parameterized, critically-parameterized, and over-parameterized regimes based on the resulting training and test error curves. We then analyzed the training dynamics of ML and IL across these regimes by examining how the error rates changed over training epochs.
+In this study, the generalization process of Mutual learning (ML) was analyzed by comparing ML models with Individual learning (IL) models. To analyze this process, we focused on the double descent phenomenon\cite{belkin_reconciling_2019,nakkiran_deep_2021}, which describes non-monotonic changes in test error as model complexity or training progress increases. We first analyzed parameter-wise double descent by varying the base number of filters and defined the under-parameterized, critically-parameterized, and over-parameterized regimes based on the resulting training and test error curves. We then analyzed the training dynamics of ML and IL across these regimes by examining how the error rates changed over training epochs.To further investigate the factors underlying the improved generalization performance of ML, we conducted bias--variance decomposition, Hessian eigenvalue analysis, loss landscape visualization, and error analysis on noisy-label and clean-label training samples.
 
 The main contributions of this study are summarized as follows:
 \begin{itemize}
@@ -82,12 +83,11 @@ The main contributions of this study are summarized as follows:
 \section{Related Work}
 \subsection{Mutual Learning}
 
-ML is a training framework in which multiple models are trained simultaneously by referring to each other's prediction distributions.
-In contrast to IL, where each model is optimized independently using only the ground-truth labels, ML introduces interactions among models through a consistency loss.
+ML is a training framework in which multiple models are trained simultaneously by referring to each other's prediction distributions. In addition to the supervised loss based on ground-truth labels, ML introduces interactions among models through a consistency loss between their prediction distributions.
 
 For two models, let $p_1$ and $p_2$ denote the prediction distributions of Model 1 and Model 2, respectively.
 The parameters of Model 1 and Model 2 are denoted by $\Theta_1$ and $\Theta_2$, respectively.
-The objective functions are defined as
+The loss functions for the two models are defined as
 \begin{equation}
 L_{\Theta_1} = L_{\mathrm{sup}}(y, p_1) + D_{\mathrm{KL}}(p_2 \| p_1),
 \end{equation}
@@ -95,32 +95,26 @@ L_{\Theta_1} = L_{\mathrm{sup}}(y, p_1) + D_{\mathrm{KL}}(p_2 \| p_1),
 L_{\Theta_2} = L_{\mathrm{sup}}(y, p_2) + D_{\mathrm{KL}}(p_1 \| p_2),
 \end{equation}
 where $y$ denotes the ground-truth label, and $L_{\mathrm{sup}}$ denotes the supervised loss.
-The supervised loss term trains each model using the ground-truth label, while the KL divergence term acts as a consistency loss between the prediction distributions of the two models.
 
 Models trained with ML often improve generalization performance compared with models trained with IL.
-Since each model is trained collaboratively but used independently at inference time, ML can improve the training process without increasing the inference cost of a single model.
-
-Previous studies have suggested that posterior entropy and robust minima may be related to the improved generalization of ML~\cite{zhang_deep_2018}.
-However, how the interactions introduced by ML affect the generalization process under changes in model complexity and training time has not been fully characterized.
+Since the models are trained collaboratively but used independently at inference time, ML can improve generalization performance without increasing the inference cost relative to a single model.
+% Previous studies have suggested that posterior entropy and robust minima may be related to the improved generalization of ML~\cite{zhang_deep_2018}.
+However, the factors contributing to the improved generalization performance of ML remain unclear, particularly how the interactions introduced by ML affect the generalization process as model complexity and training time vary.
 
 \subsection{Double Descent}
-Double descent is a phenomenon in which the test error first decreases, then increases, and finally decreases again as model complexity increases. This behavior differs from the conventional U-shaped generalization curve expected from the classical bias--variance trade-off.
+
+Double descent refers to a non-monotonic generalization behavior that differs from the conventional expectation based on the classical bias--variance trade-off. Figure~\ref{fig:doubledescent} schematically illustrates this behavior and the corresponding regimes.
 
 \begin{figure}[htb]
-  \centering
-  \includegraphics[width=0.5\linewidth]{fig/1_double_descent.png}
-  \caption{Schematic illustration of double descent and three regimes.}
-  \label{fig:doubledescent}
+\centering
+\includegraphics[width=0.5\linewidth]{fig/1_double_descent.png}
+\caption{Schematic illustration of double descent and three regimes.}
+\label{fig:doubledescent}
 \end{figure}
 
-Figure~\ref{fig:doubledescent} schematically illustrates this behavior. In this figure, the horizontal axis represents a complexity factor, such as the number of model parameters or the number of training epochs. When the curve is observed by increasing the number of model parameters, it is referred to as parameter-wise double descent. When it is observed as training progresses over epochs, it is referred to as epoch-wise double descent.
+The horizontal axis in Fig.~\ref{fig:doubledescent} represents a complexity factor, such as the number of model parameters or the number of training epochs, and the vertical axis represents the error rate. The dashed and solid curves denote the training and test error rates, respectively. As shown in Fig.~\ref{fig:doubledescent}, double descent is characterized by a test-error curve that first decreases, then increases, and finally decreases again as the complexity factor increases. This behavior is categorized according to the complexity factor: double descent observed by increasing the number of model parameters is referred to as parameter-wise double descent, whereas double descent observed as training progresses is referred to as epoch-wise double descent.
 
-As indicated by the shaded regions in Fig.~\ref{fig:doubledescent}, the double descent curve is divided into three regimes: the under-parameterized regime, the critically-parameterized regime, and the over-parameterized regime, colored purple, orange, and green, respectively.
-In the under-parameterized regime, the model does not have sufficient capacity to fit the training data, and increasing model complexity tends to reduce the test error. 
-In the critically-parameterized regime, the model capacity is approximately matched to the complexity of the training data. In this regime, the test error tends to become sensitive to changes in complexity and often shows unstable behavior. The local maximum observed around this regime is referred to as the peak of double descent. 
-In the over-parameterized regime, the model has sufficient capacity to fit the training data, and further increasing model complexity tends to reduce the test error again.
-
-When label noise is introduced into the training labels, the peak tends to become more prominent, making double descent behavior more clearly observable.
+The shaded regions in Fig.~\ref{fig:doubledescent} divide the double descent curve into three regimes: the under-parameterized, critically-parameterized, and over-parameterized regimes. In the under-parameterized regime, the model does not have sufficient capacity to fit the training data, and increasing model complexity tends to reduce the test error. In the critically-parameterized regime, the model is close to the interpolation threshold, where it becomes capable of fitting the training data. In this regime, the test error tends to become sensitive to changes in complexity. The local maximum observed around this regime is referred to as the peak of double descent. This peak tends to become more prominent when label noise is introduced into the training labels, making the behavior more clearly observable. In the over-parameterized regime, the model has sufficient capacity to fit the training data, and further increasing model complexity tends to reduce the test error again. In the over-parameterized regime, the model has sufficient capacity to fit the training data, and further increasing model complexity tends to reduce the test error again. By dividing double descent behavior into regimes, the generalization process can be characterized in more detail across changes in model complexity or training progress.
 
 \section{Experiments}
 We first analyzed parameter-wise double descent by varying the base number of filters and defined the under-parameterized, critically-parameterized, and over-parameterized regimes based on the resulting training and test error curves. We then analyzed the training dynamics of ML and IL across these regimes by examining how the error rates changed over training epochs. To further examine the differences in generalization behavior, we conducted additional analyses based on bias--variance decomposition, the top-five Hessian eigenvalues, loss landscape geometry, and error behavior on noisy-label and clean-label training samples.
