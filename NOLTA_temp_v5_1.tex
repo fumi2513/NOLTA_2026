@@ -71,22 +71,20 @@ However, such resource-based scaling is not always applicable in practical situa
 
 In recent years, collaborative learning frameworks using multiple models have attracted attention as one possible approach. These frameworks use the predictions of other models as additional supervision during training, thereby improving generalization performance. Since model collaboration is required only during training, these frameworks can improve model performance without increasing the computational cost at inference time.
 
-A representative example of such frameworks is Mutual learning (ML)\cite{zhang_deep_2018}, in which multiple models are trained simultaneously while referring to each other's prediction distributions. Unlike conventional teacher-student approaches, ML does not require a fixed pre-trained teacher model. In ML, each model is trained using a loss function consisting of a standard supervised loss and a KL-divergence-based consistency loss between prediction distributions. Previous studies have shown that ML models often achieves better generalization performance than individual learning models. However, it remains unclear how ML improves model performance, particularly how interactions between models during training contribute to this improvement.
+A representative example of such frameworks is Mutual learning (ML)\cite{zhang_deep_2018}, in which multiple models are trained simultaneously while referring to each other's prediction distributions. Unlike conventional teacher-student approaches, ML does not require a fixed pre-trained teacher model. In ML, each model is trained using a loss function consisting of a standard supervised loss and a KL-divergence-based consistency loss between prediction distributions. Previous studies have shown that ML models often achieve better generalization performance than individual learning models. However, it remains unclear how ML improves model performance, particularly how interactions between models during training contribute to this improvement.
 
 In this study, the generalization process of Mutual learning (ML) was analyzed by comparing ML models with Individual learning (IL) models. To analyze this process, we focused on the double descent phenomenon\cite{belkin_reconciling_2019,nakkiran_deep_2021}, which describes non-monotonic changes in test error as model complexity or training progress increases. We first analyzed parameter-wise double descent by varying the base number of filters and defined the under-parameterized, critically-parameterized, and over-parameterized regimes based on the resulting training and test error curves. We then analyzed the training dynamics of ML and IL across these regimes by examining how the error rates changed over training epochs.
 
 The main contributions of this study are summarized as follows:
 \begin{itemize}
-  \item We analyze ML by dividing the parameter-wise double descent behavior into three regimes and comparing its generalization behavior with that of Individual learning (IL) in each regime.
+\item We analyze ML from the perspective of parameter-wise double descent by dividing the learning behavior into three regimes and comparing its generalization behavior with that of IL in each regime.
 
-  \item We show that the effect of ML differs across regimes and is especially pronounced in the Critical Regime.
-  In this regime, ML suppresses the increase in test error and achieves a lower error rate than IL.
+\item We show that the effect of ML differs across regimes and is most apparent in the critically-parameterized regime. In this regime, ML suppresses the increase in test error and achieves a lower error rate than IL.
 
-  \item We show that ML may improve generalization by suppressing overfitting to noisy-label samples and converging to flatter minima.
-  This tendency is supported by variance analysis, Hessian eigenvalue analysis, and loss landscape visualization.
+\item We investigate factors related to the improved generalization of ML through variance analysis, Hessian eigenvalue analysis, loss landscape visualization, and error analysis on noisy-label and clean-label samples. The results suggest that the lower test error of ML is related to flatter local minima, reduced prediction variance, and slower fitting to noisy-label samples.
 \end{itemize}
 
-\section{Related Works}
+\section{Related Work}
 \subsection{Mutual Learning}
 
 ML is a training framework in which multiple models are trained simultaneously by referring to each other's prediction distributions.
@@ -102,9 +100,6 @@ L_{\Theta_1} = L_{\mathrm{sup}}(y, p_1) + D_{\mathrm{KL}}(p_2 \| p_1),
 L_{\Theta_2} = L_{\mathrm{sup}}(y, p_2) + D_{\mathrm{KL}}(p_1 \| p_2),
 \end{equation}
 where $y$ denotes the ground-truth label, and $L_{\mathrm{sup}}$ denotes the supervised loss.
-The supervised loss term trains each model using the ground-truth label, while the KL divergence term acts as a consistency loss between the prediction distributions of the two models.
-
-Here, $y$ denotes the ground-truth label, and $L_{\mathrm{sup}}$ denotes the supervised loss.
 The supervised loss term trains each model using the ground-truth label, while the KL divergence term acts as a consistency loss between the prediction distributions of the two models.
 
 Models trained with ML often improve generalization performance compared with models trained with IL.
@@ -138,7 +133,7 @@ We first analyzed parameter-wise double descent by varying the base number of fi
 \subsection{Experimental Setup}
 % データセット
 We evaluated ML and IL on an image classification task using CIFAR-10\cite{krizhevsky_learning_2009}.
-CIFAR-10 consist of 50,000 training images and 10,000 test images from 10 classes.
+CIFAR-10 consists of 50,000 training images and 10,000 test images from 10 classes.
 We added 20\% label noise to the training labels.
 
 % 使用モデル
@@ -227,12 +222,12 @@ Figure~\ref{fig:epoch_curves}(a), (b), and (c) correspond to the under-parameter
 % 結果
 Figure~\ref{fig:epoch_curves}(a) shows that ML and IL have similar test error curves in the under-parameterized regime. In Fig.~\ref{fig:epoch_curves}(b), ML suppresses the increase in test error observed in IL, while its training error decreases more slowly in the critically-parameterized regime. In Fig.~\ref{fig:epoch_curves}(c), ML exhibits larger fluctuations in test error during the early stage of training in the over-parameterized regime, and its final test error becomes comparable to that of IL. For the training error, ML converges more slowly than IL and shows oscillatory behavior as it approaches convergence.
 
-To examine whether the differences observed in Fig.~\ref{fig:epoch_curves} were consistent over the entire range of $k$ and training epochs, we calculated the ML--IL differences for the test and training error rates. Figure~\ref{fig:variance} shows the resulting variance heatmaps of IL and ML. The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color indicates the variance. The right panel shows the variance difference between ML and IL, computed as ML minus IL. Thus, negative values indicate that ML had lower variance than IL, whereas positive values indicate that ML had higher variance than IL.
+To examine whether the differences observed in Fig.~\ref{fig:epoch_curves} were consistent over the entire range of $k$ and training epochs, we calculated the ML--IL differences for the test and training error rates. Figure~\ref{fig:epoch_diff} shows the resulting difference heatmaps for the test and training error rates. The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color indicates the variance. The right panel shows the variance difference between ML and IL, computed as ML minus IL. Thus, negative values indicate that ML had lower variance than IL, whereas positive values indicate that ML had higher variance than IL.
 
 \begin{figure}[htb]
   \centering
   \includegraphics[width=0.8\linewidth]{fig/8_epoch_diff.png}
-  \caption{}
+  \caption{Difference heatmaps of test and training error rates between ML and IL.}
   \label{fig:epoch_diff}
 \end{figure}
 
@@ -292,12 +287,12 @@ The right panel shows the difference between ML and IL.
 
 Figure~\ref{fig:variance} shows that IL and ML have similar variance values in the under-parameterized regime. In the critically-parameterized regime, ML has lower variance than IL, indicating that ML suppresses the increase in variance observed in IL. In the over-parameterized regime, ML shows noticeable variance fluctuations during the early stage of training and often has higher variance than IL in this stage.
 
-\subsection{Analysis of Loss Landscape Geometry}
+\subsection{Analysis of solution geometry}
 % Overview
 This experiment compared the loss landscape geometry between ML and IL.
 To analyze the sharpness of the loss landscape around the obtained solutions, we first computed the top five eigenvalues of the Hessian matrix and then visualized the loss landscape around representative solutions.
 
-\paragraph{Hessian eigenvalue analysi}
+\paragraph{Hessian eigenvalue analysis}
 % setup
 The Hessian matrix consists of the second-order derivatives of the loss function and describes the local curvature around an obtained solution. Larger Hessian eigenvalues indicate sharper local curvature. We trained the models with each base number of filters $k$ for 500 epochs, computed the five largest Hessian eigenvalues at the final epoch, and averaged them.
 
@@ -393,14 +388,13 @@ Overall, these results suggest that the effect of ML depends on the balance betw
 
 \section{Conclusions}
 
-This study analyzed the generalization process of ML from the perspective of double descent.
-We compared ML with IL in terms of parameter-wise double descent. We further examined training and test error behavior, variance, Hessian eigenvalues, and loss landscape geometry in each parameter-wise regime.
+This study analyzed the generalization process of ML from the perspective of double descent by comparing it with IL. We first examined parameter-wise and epoch-wise double descent and then conducted regime-wise analyses of prediction variance, Hessian eigenvalues, loss landscape geometry, and error behavior on noisy-label and clean-label samples.
 
-The experimental results showed that ML suppressed the increase in test error compared with IL, especially around the critically-parameterized regime.
-This improved generalization is attributed to the fact that models trained with ML tend to converge to flatter local minima.
-Such flatter minima suppress the increase in variance, thereby reducing the test error and improving the generalization performance.
+The results showed that the effect of ML differs across the parameter-wise regimes. In the under-parameterized regime, the difference between ML and IL was small. In the critically-parameterized regime, ML achieved lower test error than IL. In contrast, in the over-parameterized regime, the final difference in test error became small, although ML showed larger fluctuations in the early stage of training. These results indicate that ML is most effective around the critically-parameterized regime.
 
-Future work will focus on clarifying the mechanism by which ML encourages models to converge to flatter local minima in the critically-parameterized regime.
+The additional analyses suggest that the improved generalization of ML in the critically-parameterized regime is related to both solution geometry and prediction stability. The Hessian eigenvalue analysis and loss landscape visualization showed that ML tends to reach flatter local minima than IL. The variance analysis also showed that ML suppresses the increase in prediction variance. Furthermore, the noisy-label analysis suggested that ML may reduce rapid fitting to noisy-label samples rather than simply slowing down the entire training process. These results suggest that the interaction between models in ML guides the learning process toward flatter solutions and more stable predictions, leading to lower test error.
+
+Future work will further examine how the interaction between models affects noisy-label fitting and solution geometry. In particular, we will analyze how the consistency loss influences the trajectory toward flatter local minima in the critically-parameterized regime.
 
 \acknowledgments
 \textcolor{blue}{(if any)}
