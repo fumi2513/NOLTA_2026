@@ -114,10 +114,10 @@ Double descent refers to a non-monotonic generalization behavior that differs fr
 
 The horizontal axis in Fig.~\ref{fig:doubledescent} represents a complexity factor, such as the number of model parameters or the number of training epochs, and the vertical axis represents the error rate. The dashed and solid curves denote the training and test error rates, respectively. As shown in Fig.~\ref{fig:doubledescent}, double descent is characterized by a test-error curve that first decreases, then increases, and finally decreases again as the complexity factor increases. This behavior is categorized according to the complexity factor: double descent observed by increasing the number of model parameters is referred to as parameter-wise double descent, whereas double descent observed as training progresses is referred to as epoch-wise double descent.
 
-The shaded regions in Fig.~\ref{fig:doubledescent} divide the double descent curve into three regimes: the under-parameterized, critically-parameterized, and over-parameterized regimes. In the under-parameterized regime, the model does not have sufficient capacity to fit the training data, and increasing model complexity tends to reduce the test error. In the critically-parameterized regime, the model is close to the interpolation threshold, where it becomes capable of fitting the training data. In this regime, the test error tends to become sensitive to changes in complexity. The local maximum observed around this regime is referred to as the peak of double descent. This peak tends to become more prominent when label noise is introduced into the training labels, making the behavior more clearly observable. In the over-parameterized regime, the model has sufficient capacity to fit the training data, and further increasing model complexity tends to reduce the test error again. In the over-parameterized regime, the model has sufficient capacity to fit the training data, and further increasing model complexity tends to reduce the test error again. By dividing double descent behavior into regimes, the generalization process can be characterized in more detail across changes in model complexity or training progress.
+The shaded regions in Fig.~\ref{fig:doubledescent} divide the double descent curve into three regimes: the under-parameterized, critically-parameterized, and over-parameterized regimes. In the under-parameterized regime, the model does not have sufficient capacity to fit the training data, and increasing model complexity tends to reduce the test error. In the critically-parameterized regime, the model is close to the interpolation threshold, where it becomes capable of fitting the training data. In this regime, the test error tends to become sensitive to changes in complexity. The local maximum observed around this regime is referred to as the peak of double descent. This peak tends to become more prominent when label noise is introduced into the training labels, making the behavior more clearly observable. In the over-parameterized regime, the model has sufficient capacity to fit the training data, and further increasing model complexity tends to reduce the test error again. By dividing double descent behavior into regimes, the generalization process can be characterized in more detail across changes in model complexity or training progress.
 
 \section{Experiments}
-In this section, we examine how ML affects the generalization process by comparing it with IL from the perspective of double descent. We first analyzed parameter-wise double descent by varying the base number of filters and defined the under-parameterized, critically-parameterized, and over-parameterized regimes based on the resulting training and test error curves. We then analyzed the training dynamics of ML and IL across these regimes by examining how the error rates changed over training epochs. To further examine the differences in generalization behavior, we conducted additional analyses based on bias--variance decomposition, the top-five Hessian eigenvalues, loss landscape geometry, and error behavior on noisy-label and clean-label training samples.
+In this section, we examine how ML affects the generalization process by comparing ML with IL from the perspective of double descent. We first analyzed parameter-wise double descent by varying the base number of filters and defined the under-parameterized, critically-parameterized, and over-parameterized regimes based on the resulting training and test error curves. We then analyzed the training dynamics of ML and IL across these regimes by examining how the error rates changed over training epochs. To further examine the differences in generalization behavior, we conducted additional analyses based on bias--variance decomposition, the top-five Hessian eigenvalues, loss landscape geometry, and error behavior on noisy-label and clean-label training samples.
 
 \subsection{Experimental Setup}
 % データセット
@@ -144,6 +144,7 @@ This experiment compared the parameter-wise double descent behavior of ML and IL
 
 % Setting
 To construct the parameter-wise error curves, the base number of filters $k$ was varied from 1 to 60. For each value of $k$, we trained the models for 500 epochs and used the training and test error rates at the final epoch.
+
 % 図の説明
 Figure~\ref{fig:filter_wise} shows the training and test error rates as functions of the base number of filters $k$. The blue and red curves represent IL and ML, respectively, with solid lines for the test error rates and dashed lines for the training error rates.
 
@@ -395,11 +396,11 @@ The authors declare no competing interests.
 The authors’ contributions to this study are as follows:
 
 \begin{tabular}{ll}
-Conceptualization: F.K., K.N., T.T.
-Investigation: F.K., K.N., T.T.
-Supervision: T.T.
-Writing--original draft: F.K., K.N., T.T.
-Writing--review \& editing: F.K., K.N., T.T.
+Conceptualization: F.K., K.N., T.T.\\
+Investigation: F.K., K.N., T.T.\\
+Supervision: T.T.\\
+Writing--original draft: F.K., K.N., T.T.\\
+Writing--review \& editing: F.K., K.N., T.T.\\
 \end{tabular}
 
 % \aitools

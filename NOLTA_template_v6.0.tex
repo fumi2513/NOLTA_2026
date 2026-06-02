@@ -1,0 +1,430 @@
+%#!latex
+%\documentclass[luatex]{nolta}          % for lualatex
+%\documentclass[xetex]{nolta}           % for xelatex
+\documentclass[dvipdfmx]{nolta}        % for platex
+%\documentclass[pdftex,survey]{nolta}   % for pdflatex Survey Paper
+% \documentclass[pdftex]{nolta}           % for pdflatex
+
+
+\newcommand{\NOLTA}{\textbf{NOLTA}}
+
+
+\Vol{17}%
+\No{1}%
+\Year{2026}%
+\Month{1}%
+\PaperID{2026ENP0886}
+
+%
+%\printorcid
+%
+
+\setcounter{page}{15}%%
+
+\title{Regime-wise Analysis of Generalization Dynamics in Mutual Learning through Double Descent\\
+\textcolor{red}{(Ver.\ 6.0, Jan. 1, 2026)}}
+
+\AUTHOR{%
+\author{Fumika Komori}{1}\orcid{0009-0002-0232-8790},
+\author*{Keiichi Nakanishi}{1}\orcid{0009-0005-7638-2679},
+\author{Terumasa Tokunaga}{2,3}\orcid{0000-0003-1091-2022}
+}
+
+\AFFILIATE{%
+\affiliate{Graduate School of Computer Science and Systems Engineering, Kyushu
+Institute of Technology 680-4 Kawazu, Iizuka-shi, Fukuoka, 820-8502, JAPAN}{1},
+\affiliate{Research Center for Neuromorphic AI Hardware, Kyushu Institute of
+Technology 2-4 Hibikino, Wakamatsu-ku, Kitakyushu-shi, Fukuoka, 808-0196,
+JAPAN}{2}
+\affiliate{Faculty of Computer Science and Systems Engineering, Kyushu Institute of
+Technology 680-4 Kawazu Iizuka-shi, Fukuoka 820-8502, JAPAN}{3}
+}
+
+
+\received{10}{27}{20XX}
+\revised{12}{29}{20XX}
+\published{7}{1}{20XX}
+
+\begin{document}
+
+\begin{abstract}
+% 97word
+Scaling laws in deep learning indicate that generalization performance improves with increasing data, model size, and computation, but such scaling requires substantial resources. As an alternative, collaborative training frameworks such as Mutual learning (ML) have attracted attention. However, how interactions among models in ML affect the generalization process remains unclear. By comparing ML with Individual learning across parameter-wise double-descent regimes, we show that ML exhibits regime-dependent behavior and is especially effective in the critically-parameterized regime. Further analyses suggest that ML delays fitting to noisy-label samples and guides models toward flatter minima, providing insight into multi-model training paradigms.
+\end{abstract}
+
+\begin{keywords}
+Deep learning, Mutual learning, generalization dynamics, double descent, bias--variance decomposition, loss landscape
+\end{keywords}
+
+\maketitle
+
+\section{Introduction}
+Deep learning has achieved remarkable success in various fields, such as image recognition and natural language processing. The generalization performance of deep neural networks has often been improved by increasing model size, the amount of training data, and computational resources\cite{kaplan_scaling_2020}. This tendency is often characterized by scaling laws, which describe how model performance improves as these resources are scaled up.
+
+However, such resource-based scaling is not always applicable in practical situations. In some domains, such as industrial anomaly detection and medical applications, it is difficult to obtain large amounts of data, especially data containing rare or abnormal cases. In addition, some applications must be performed under limited computational resources, memory capacity, or inference time. Therefore, it is important to explore alternative learning paradigms that can improve generalization performance without simply relying on larger models, larger datasets, or larger computational budgets.
+
+In recent years, collaborative learning frameworks using multiple models have attracted attention as one possible approach. These frameworks use the predictions of other models as additional supervision during training, thereby improving generalization performance. Since model collaboration is required only during training, these frameworks can improve model performance without increasing the computational cost at inference time.
+
+A representative example of such frameworks is Mutual learning (ML)\cite{zhang_deep_2018}, in which multiple models are trained simultaneously while referring to each other's prediction distributions. Unlike conventional teacher-student approaches, ML does not require a fixed pre-trained teacher model. In ML, each model is trained using a loss function consisting of a standard supervised loss and a KL-divergence-based consistency loss between prediction distributions. Previous studies have shown that ML models often achieve better generalization performance than individual learning models. However, it remains unclear how ML improves model performance, particularly how interactions between models during training contribute to this improvement.
+
+In this study, the generalization process of Mutual learning (ML) was analyzed by comparing ML models with Individual learning (IL) models. To analyze this process, we focused on the double descent phenomenon\cite{belkin_reconciling_2019,nakkiran_deep_2021}, which describes non-monotonic changes in test error as model complexity or training progress increases. We first analyzed parameter-wise double descent by varying the base number of filters and defined the under-parameterized, critically-parameterized, and over-parameterized regimes based on the resulting training and test error curves. We then analyzed the training dynamics of ML and IL across these regimes by examining how the error rates changed over training epochs.To further investigate the factors underlying the improved generalization performance of ML, we conducted bias--variance decomposition, Hessian eigenvalue analysis, loss landscape visualization, and error analysis on noisy-label and clean-label training samples.
+
+The main contributions of this study are summarized as follows:
+\begin{itemize}
+\item We analyze ML from the perspective of parameter-wise double descent by dividing the learning behavior into three regimes and comparing its generalization behavior with that of IL in each regime.
+
+\item We show that the effect of ML differs across regimes and is most apparent in the critically-parameterized regime. In this regime, ML suppresses the increase in the test error rate observed in IL, resulting in better generalization performance.
+
+\item We investigate factors related to the improved generalization of ML through variance analysis, Hessian eigenvalue analysis, loss landscape visualization, and error analysis on noisy-label and clean-label samples. The results suggest that the lower test error of ML is related to flatter local minima, reduced prediction variance, and slower fitting to noisy-label samples.
+\end{itemize}
+
+\section{Related Work}
+\subsection{Mutual Learning}
+
+ML is a training framework in which multiple models are trained simultaneously by referring to each other's prediction distributions. In addition to the supervised loss based on ground-truth labels, ML introduces interactions among models through a consistency loss between their prediction distributions.
+
+For two models, let $p_1$ and $p_2$ denote the prediction distributions of Model 1 and Model 2, respectively.
+The parameters of Model 1 and Model 2 are denoted by $\Theta_1$ and $\Theta_2$, respectively.
+The loss functions for the two models are defined as
+\begin{equation}
+L_{\Theta_1} = L_{\mathrm{sup}}(y, p_1) + D_{\mathrm{KL}}(p_2 \| p_1),
+\end{equation}
+\begin{equation}
+L_{\Theta_2} = L_{\mathrm{sup}}(y, p_2) + D_{\mathrm{KL}}(p_1 \| p_2),
+\end{equation}
+where $y$ denotes the ground-truth label, and $L_{\mathrm{sup}}$ denotes the supervised loss.
+
+Models trained with ML often improve generalization performance compared with models trained with IL.
+Since the models are trained collaboratively but used independently at inference time, ML can improve generalization performance without increasing the inference cost relative to a single model.
+% Previous studies have suggested that posterior entropy and robust minima may be related to the improved generalization of ML~\cite{zhang_deep_2018}.
+However, the factors contributing to the improved generalization performance of ML remain unclear, particularly how the interactions introduced by ML affect the generalization process as model complexity and training time vary.
+
+\subsection{Double Descent}
+
+Double descent refers to a non-monotonic generalization behavior that differs from the conventional expectation based on the classical bias--variance trade-off. Figure~\ref{fig:doubledescent} schematically illustrates this behavior and the corresponding regimes.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.80\columnwidth]{fig/1_double_descent.png}
+\caption{Schematic illustration of double descent and three regimes.}
+\label{fig:doubledescent}
+\end{figure}
+
+The horizontal axis in Fig.~\ref{fig:doubledescent} represents a complexity factor, such as the number of model parameters or the number of training epochs, and the vertical axis represents the error rate. The dashed and solid curves denote the training and test error rates, respectively. As shown in Fig.~\ref{fig:doubledescent}, double descent is characterized by a test-error curve that first decreases, then increases, and finally decreases again as the complexity factor increases. This behavior is categorized according to the complexity factor: double descent observed by increasing the number of model parameters is referred to as parameter-wise double descent, whereas double descent observed as training progresses is referred to as epoch-wise double descent.
+
+The shaded regions in Fig.~\ref{fig:doubledescent} divide the double descent curve into three regimes: the under-parameterized, critically-parameterized, and over-parameterized regimes. In the under-parameterized regime, the model does not have sufficient capacity to fit the training data, and increasing model complexity tends to reduce the test error. In the critically-parameterized regime, the model is close to the interpolation threshold, where it becomes capable of fitting the training data. In this regime, the test error tends to become sensitive to changes in complexity. The local maximum observed around this regime is referred to as the peak of double descent. This peak tends to become more prominent when label noise is introduced into the training labels, making the behavior more clearly observable. In the over-parameterized regime, the model has sufficient capacity to fit the training data, and further increasing model complexity tends to reduce the test error again. By dividing double descent behavior into regimes, the generalization process can be characterized in more detail across changes in model complexity or training progress.
+
+\section{Experiments}
+In this section, we examine how ML affects the generalization process by comparing ML with IL from the perspective of double descent. We first analyzed parameter-wise double descent by varying the base number of filters and defined the under-parameterized, critically-parameterized, and over-parameterized regimes based on the resulting training and test error curves. We then analyzed the training dynamics of ML and IL across these regimes by examining how the error rates changed over training epochs. To further examine the differences in generalization behavior, we conducted additional analyses based on bias--variance decomposition, the top-five Hessian eigenvalues, loss landscape geometry, and error behavior on noisy-label and clean-label training samples.
+
+\subsection{Experimental Setup}
+% データセット
+We evaluated ML and IL on an image classification task using CIFAR-10\cite{krizhevsky_learning_2009}.
+CIFAR-10 consists of 50,000 training images and 10,000 test images from 10 classes.
+We added 20\% label noise to the training labels.
+
+% 使用モデル
+For both ML and IL, we used a 5-layer CNN consisting of four convolutional layers and one fully connected layer.
+The numbers of filters in the four convolutional layers were set to $[k, 2k, 4k, 8k]$, where $k$ denoted the base number of filters.
+
+% 初期値の設定
+In ML, the two models were denoted as Model 1 and Model 2. These two models were trained together from different initial weights. In IL, a single model initialized with the same initial weights as Model 1 was trained individually. We reported only the results of Model 1 for ML. We then compared them with those of the corresponding IL model. Each result was averaged over five independent runs with different initial weights.
+
+% 損失関数＋最適化
+The loss function for IL was the cross-entropy loss.
+For ML, the loss function consisted of the cross-entropy loss and the KL divergence between the prediction distributions of the two models.
+All models were trained for 500 epochs using SGD without momentum.
+The batch size was 128, and the learning rate was set to $1/\sqrt{1+t/512}$, where $t$ denoted the training step.
+
+\subsection{Parameter-wise Double Descent}
+% Overview
+This experiment compared the parameter-wise double descent behavior of ML and IL. We analyzed the resulting error curves by dividing them into regimes and comparing the behavior of ML and IL in each regime.
+
+% Setting
+To construct the parameter-wise error curves, the base number of filters $k$ was varied from 1 to 60. For each value of $k$, we trained the models for 500 epochs and used the training and test error rates at the final epoch.
+
+% 図の説明
+Figure~\ref{fig:filter_wise} shows the training and test error rates as functions of the base number of filters $k$. The blue and red curves represent IL and ML, respectively, with solid lines for the test error rates and dashed lines for the training error rates.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=\columnwidth]{fig/3_filter_wise.png}
+  \caption{Parameter-wise double descent in IL and ML.}
+  \label{fig:filter_wise}
+\end{figure}
+
+As shown in Figure~\ref{fig:filter_wise}, both IL and ML exhibit parameter-wise double descent. Compared with IL, ML shows a lower test-error peak and shifts the peak toward larger values of $k$.
+
+To further analyze this difference, we divided the parameter-wise range into three regimes: the under-parameterized, critically-parameterized, and over-parameterized regimes. 
+These regimes are generally characterized by the model complexity relative to the training data. However, their exact boundaries are not strictly specified\cite{nakkiran_deep_2021}. In this study, we operationally defined the parameter-wise regimes based on the training and test error curves. The under-parameterized regime was defined as the region from the beginning of the analyzed range to the point where the test error started to increase. The critically-parameterized regime was defined as the region from the onset of the test-error increase to the point where the training error rate fell below 0.05. The over-parameterized regime was defined as the region after the training error rate fell below 0.05.
+
+% 図の説明
+Based on these definitions, the under-parameterized regime corresponds to $k=1$--$4$ for IL and $k=1$--$5$ for ML. The critically-parameterized regime corresponds to $k=5$--$11$ for IL and $k=6$--$13$ for ML, while the over-parameterized regime corresponds to $k=12$--$60$ for IL and $k=14$--$60$ for ML. Figure~\ref{fig:filterwise_regime} summarizes these regime assignments for IL and ML. 
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=1.0\columnwidth]{fig/4_filterwise_regime.png}
+\caption{Regime-wise comparison of parameter-wise double descent in IL and ML.}
+\label{fig:filterwise_regime}
+\end{figure}
+
+This comparison shows that the under-parameterized regime is longer in ML than in IL. The critically-parameterized regime also starts later and lasts longer in ML. The transition to the over-parameterized regime is later in ML.
+
+\subsection{Training Dynamics across Parameter-wise Regimes}
+% Overview
+This experiment analyzed the training dynamics of ML and IL across the parameter-wise regimes. Specifically, we examined how the training and test error rates changed over training epochs as the base number of filters $k$ was varied.
+
+% 図説明
+Figures~\ref{fig:epoch_heatmap_test} and~\ref{fig:epoch_heatmap_train} show the test and training error heatmaps of IL and ML, respectively. In both figures, the horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color represents the corresponding error rate. The brackets above the heatmaps indicate the regimes identified from the parameter-wise double descent analysis.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=1.0\columnwidth]{fig/5_epoch_heatmap_test.png}
+  \caption{Test error heatmaps of IL and ML over training epochs and the base number of filters $k$.}
+  \label{fig:epoch_heatmap_test}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=1.0\columnwidth]{fig/6_epoch_heatmap_train.png}
+  \caption{Training error heatmaps of IL and ML over training epochs and the base number of filters $k$.}
+  \label{fig:epoch_heatmap_train}
+\end{figure}
+
+\begin{figure*}[thb]
+  \centering
+  \includegraphics[width=1.0\textwidth]{fig/7_epoch_curves.png}
+  \caption{Representative training and test error curves of IL and ML in each parameter-wise regime.}
+  \label{fig:epoch_curves}
+\end{figure*}
+
+% 結果
+As shown in Fig.~\ref{fig:epoch_heatmap_test}, the test-error behavior of both ML and IL differs across the parameter-wise regimes. In the under-parameterized regime, the test error generally decreases as training proceeds. In the critically-parameterized regime, the test error increases during training, indicating overfitting. In the over-parameterized regime, the test error shows epoch-wise double descent.
+
+Figure~\ref{fig:epoch_heatmap_train} shows that the training error decreased as training proceeded in both IL and ML. However, ML tended to converge more slowly than IL, especially around and after the critically-parameterized regime.
+
+%図説明 (代表Filterでグラフを見る)
+To compare the behavior of ML and IL in each regime more closely, we selected $k=1$, $k=10$, and $k=60$ as representative widths for the under-parameterized, critically-parameterized, and over-parameterized regimes, respectively. Figure~\ref{fig:epoch_curves} shows the corresponding training and test error curves. Figures~\ref{fig:epoch_curves}(a), (b), and (c) correspond to $k=1$, $k=10$, and $k=60$, respectively. The horizontal axis represents the training epoch, and the vertical axis represents the error rate. Solid lines indicate test error rates, and dashed lines indicate training error rates.
+
+% \begin{figure*}[htb]
+%   \centering
+%   \includegraphics[width=1.0\textwidth]{fig/7_epoch_curves.png}
+%   \caption{Representative training and test error curves of IL and ML in each parameter-wise regime.}
+%   \label{fig:epoch_curves}
+% \end{figure*}
+
+% 結果
+Figure~\ref{fig:epoch_curves}(a) shows that ML and IL have similar test error curves in the under-parameterized regime. In Fig.~\ref{fig:epoch_curves}(b), ML suppresses the increase in test error observed in IL, while its training error decreases more slowly in the critically-parameterized regime. In Fig.~\ref{fig:epoch_curves}(c), ML exhibits larger fluctuations in test error during the early stage of training in the over-parameterized regime, and its final test error becomes comparable to that of IL. For the training error, ML converges more slowly than IL and shows oscillatory behavior near convergence.
+
+To examine whether the differences observed in Fig.~\ref{fig:epoch_curves} were consistent over the entire range of $k$ and training epochs, we calculated the ML--IL differences in the test and training error rates. Figure~\ref{fig:epoch_diff} shows the resulting difference heatmaps. The left and right panels show the test error difference and training error difference, respectively. The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color indicates the error-rate difference computed as ML minus IL. Thus, negative values indicate that ML had a lower error rate than IL, whereas positive values indicate that ML had a higher error rate than IL.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=1.0\columnwidth]{fig/8_epoch_diff.png}
+  \caption{Difference heatmaps of test and training error rates between ML and IL.}
+  \label{fig:epoch_diff}
+\end{figure}
+
+% 結果
+The test error difference in Fig.~\ref{fig:epoch_diff}(a) shows that ML achieved lower test error mainly around the critically-parameterized regime. In the same regime, the training error difference in Fig.~\ref{fig:epoch_diff}(b) shows that ML had higher training error than IL. These trends are consistent with the representative curves in Fig.~\ref{fig:epoch_curves}(b), where ML suppressed the increase in test error while its training error decreased more slowly.
+In the over-parameterized regime, Fig.~\ref{fig:epoch_diff}(a) shows large early-stage fluctuations in the test error difference, indicating that the test error of ML varied relative to that of IL during the early stage of training. In the later stage, the test error difference became small, suggesting that the final test error of ML was comparable to that of IL. Figure~\ref{fig:epoch_diff}(b) shows that the training error difference was mostly positive in the early stage, indicating that ML maintained a higher training error than IL and fit the training data more slowly. This trend is consistent with Fig.~\ref{fig:epoch_curves}(c), where ML exhibited larger early-stage fluctuations while eventually reaching a test error similar to that of IL.
+
+\subsection{Variance Analysis Based on Bias--Variance Decomposition}
+
+\begin{figure*}[thb]
+  \centering
+  \includegraphics[width=1.0\textwidth]{fig/9_variance.png}
+  \caption{Variance heatmaps of IL and ML and their difference (ML--IL) over the base number of filters $k$ and training epochs.}
+  \label{fig:variance}
+\end{figure*}
+
+% Overview
+This experiment compared the variance between ML and IL to further investigate their generalization behavior in double descent.
+Variance is related to overfitting and prediction stability, and was computed using a cross-entropy-based bias--variance decomposition\cite{yang_rethinking_2020}.
+
+For an input sample $x$, let $\pi_i(x)$ denote the prediction distribution of the $i$-th trained model.
+The variance was computed by averaging the KL divergence over the trained models and the test samples:
+
+\[
+\mathrm{Variance}
+=
+\frac{1}{N}
+\sum_{i=1}^{N}
+\frac{1}{|\mathcal{D}_{\mathrm{test}}|}
+\sum_{x \in \mathcal{D}_{\mathrm{test}}}
+D_{\mathrm{KL}}
+\left(
+\bar{\pi}(x)\,\|\,\pi_i(x)
+\right),
+\]
+
+where $\mathcal{D}_{\mathrm{test}}$ denotes the test set and $\bar{\pi}(x)$ is the representative prediction distribution.
+Following the cross-entropy-based bias--variance decomposition, $\bar{\pi}(x)$ is defined as
+
+\[
+\bar{\pi}(x)
+=
+\mathrm{Normalize}
+\left(
+\exp\left(
+\frac{1}{N}\sum_{i=1}^{N}\log \pi_i(x)
+\right)
+\right),
+\]
+
+where $N$ is the number of trained models.
+In our experiments, we set $N=5$ and used five trained models with different initial weights.
+The variance was computed for each base number of filters $k$ at each training epoch.
+
+Figure~\ref{fig:variance} shows the resulting variance heatmaps of IL and ML.
+The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color indicates the variance.
+The right panel shows the difference between ML and IL.
+
+Figure~\ref{fig:variance} shows that IL and ML have similar variance values in the under-parameterized regime. In the critically-parameterized regime, ML has lower variance than IL, indicating that ML suppresses the increase in variance observed in IL. In the over-parameterized regime, ML shows noticeable variance fluctuations during the early stage of training and often has higher variance than IL in this stage.
+
+\subsection{Analysis of loss landscape geometry}
+% Overview
+This experiment compared the loss landscape geometry between ML and IL.
+To analyze the sharpness of the loss landscape around the obtained solutions, we first computed the top five eigenvalues of the Hessian matrix and then visualized the loss landscape around representative solutions.
+
+\paragraph{Hessian eigenvalue analysis}
+% setup
+The Hessian matrix consists of the second-order derivatives of the loss function and describes the local curvature around an obtained solution. Larger Hessian eigenvalues indicate sharper local curvature. We trained the models with each base number of filters $k$ for 500 epochs, computed the five largest Hessian eigenvalues at the final epoch, and averaged them.
+
+% 図の説明
+Figure~\ref{fig:hessian} compares IL and ML in terms of the average of the five largest Hessian eigenvalues. The horizontal axis represents the base number of filters $k$, and the vertical axis represents the average of the five largest Hessian eigenvalues. The blue and red curves represent IL and ML, respectively, and the shaded regions indicate the parameter-wise regimes defined based on the parameter-wise double descent results.
+
+% results
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=1.0\columnwidth]{fig/10_Hessian.png}
+  \caption{Mean top-five Hessian eigenvalues as a function of the base number of filters $k$.}
+  \label{fig:hessian}
+\end{figure}
+
+% results
+\begin{figure*}[tb]
+  \centering
+  \includegraphics[width=1.0\textwidth]{fig/11_Loss_Landscape.png}
+  \caption{Loss landscapes of IL and ML at representative values of $k$.}
+  \label{fig:landscape}
+\end{figure*}
+
+Figure~\ref{fig:hessian} shows that IL and ML have comparable eigenvalues in the under-parameterized regime. In contrast, ML exhibits much smaller values than IL in the critically-parameterized regime. In the over-parameterized regime, both IL and ML show small Hessian eigenvalues. IL is slightly larger than ML, but the difference between IL and ML is small.
+
+\paragraph{Loss Landscape Visualization}
+
+% setup
+The loss landscape represents how the loss value changes when the model parameters are perturbed around an obtained solution. A flatter loss landscape suggests that the obtained solution lies in a flatter local minimum\cite{li_visualizing_2018}.
+
+For learned model parameters $\theta^{*}$, the two-dimensional loss surface is defined as
+\[
+f(\alpha, \beta)
+=
+L(\theta^{*} + \alpha \delta + \beta \eta),
+\]
+where $\delta$ and $\eta$ are direction vectors, and $\alpha$ and $\beta$ are displacement coefficients.
+
+In this experiment, we selected $k=1$, $k=10$, and $k=60$ as representative values for the under-parameterized, critically-parameterized, and over-parameterized regimes, respectively, and visualized the loss landscape for each value. The displacement coefficients $\alpha$ and $\beta$ were varied within the range $[-0.2,0.2]$, forming a $51\times51$ grid. To reduce the dependence on model initialization and the choice of direction vectors, we used five trained models and three direction sets for each model, and averaged the loss changes over all models and direction sets to obtain the final landscape.
+
+Figure~\ref{fig:landscape} shows the loss landscapes of IL and ML for the representative values of $k$ selected from the three parameter-wise regimes.
+
+Figure~\ref{fig:landscape}(a) shows that IL and ML have similarly flat loss landscapes in the under-parameterized regime. In Fig.~\ref{fig:landscape}(b), ML exhibits a flatter loss landscape than IL in the critically-parameterized regime. Figure~\ref{fig:landscape}(c) shows that the difference between IL and ML is small in the over-parameterized regime, although ML has a flatter loss landscape.
+
+\subsection{Error Analysis on Noisy-label and Clean-label Samples}
+% Overview
+This experiment compared the training behavior of ML and IL on noisy-label and clean-label samples.
+In the 20\% label-noise setting, we divided the training samples into two groups: noisy-label samples and clean-label samples. Noisy-label samples were those whose labels were replaced with incorrect labels, whereas clean-label samples were the remaining samples whose labels were unchanged. We computed the error rates of ML and IL for each group during training.
+
+Figure~\ref{fig:noisy_error} shows the error-rate heatmaps on noisy-label samples, and Figure~\ref{fig:clean_error} shows those on clean-label samples. In each figure, the left and middle panels show the error rates of IL and ML, respectively. The horizontal axis represents the base number of filters $k$, the vertical axis represents the training epoch, and the color indicates the error rate. The right panel shows the difference between ML and IL, where positive values indicate that ML has a higher error rate than IL. The brackets above the panels indicate the under-, critically-, and over-parameterized regimes.
+
+\begin{figure*}[htb]
+  \centering
+  \includegraphics[width=1.0\textwidth]{fig/12_NoisyData.png}
+  \caption{Error rates and differences on noisy-label samples.}
+  \label{fig:noisy_error}
+\end{figure*}
+
+\begin{figure*}[htb]
+  \centering
+  \includegraphics[width=1.0\textwidth]{fig/13_CleanData.png}
+  \caption{Error rates and differences on clean-label samples.}
+  \label{fig:clean_error}
+\end{figure*}
+
+For noisy-label samples, Figure~\ref{fig:noisy_error} shows that the difference between ML and IL is small in the under-parameterized regime, where both methods show high error rates. In the critically-parameterized regime, ML maintains a higher error rate than IL. In the over-parameterized regime, ML shows large fluctuations in the early stage of training.
+
+For clean-label samples, Figure~\ref{fig:clean_error} shows that the difference between ML and IL is also small in the under-parameterized regime. In the critically-parameterized regime, ML shows slightly higher error rates than IL. In the over-parameterized regime, ML exhibits small fluctuations in the early stage of training. Overall, the ML--IL differences on clean-label samples are less pronounced than those on noisy-label samples.
+
+\section{Discussion}
+This section interprets the experimental results to clarify why ML improves generalization and why its effect differs across parameter-wise regimes.
+
+\paragraph{Why ML improves generalization in the Critically-Parameterized Regime.}
+
+In the critically-parameterized regime, ML achieved lower test error than IL. This improvement can be explained by the flatter local minima reached by ML. In the parameter-wise analysis, ML showed lower test error than IL around this regime. In addition, the Hessian eigenvalue analysis and loss landscape visualization indicate that ML tends to reach flatter local minima than IL. Since flatter local minima are associated with better generalization performance~\cite{hochreiter_flat_1997}, these results suggest that ML lowers the test error by guiding models toward flatter solutions.
+
+A possible reason why ML tends to reach flatter local minima is that it suppresses rapid fitting to noisy-label samples. In the noisy-label analysis, ML fits noisy-label samples more slowly than IL in the critically-parameterized regime, whereas the difference between ML and IL is smaller on clean-label samples. This result suggests that ML mainly suppresses rapid fitting to corrupted labels rather than uniformly delaying fitting to all training samples. In ML, each model is trained while aligning its prediction distribution with that of the other model. Even if one model begins to fit a corrupted label, the prediction distribution of the other model can prevent it from being strongly driven by that label. This interaction makes the fitting process more gradual for noisy-label samples. By suppressing such fitting, ML may reduce the tendency to converge to solutions that depend strongly on corrupted labels and instead guide the models toward flatter local minima.
+
+The variance analysis shows that ML also suppresses the increase in prediction variance in the critically-parameterized regime. This result indicates that ML produces prediction distributions that vary less across models trained from different initial weights than IL. If models fit corrupted labels strongly, the resulting solutions may become sensitive to initial weights, increasing model-specific differences in prediction distributions across runs. The reduced variance in ML is therefore consistent with the interpretation that ML reduces this dependence on corrupted labels. This suppression may contribute not only to flatter local minima but also to more stable predictions, leading to lower test error.
+
+\paragraph{Why ML shows different behavior across regimes.}
+
+The effect of ML differs across the parameter-wise regimes. This regime-dependent behavior can be interpreted from the viewpoint of model capacity and sensitivity to noisy-label samples.
+
+In the under-parameterized regime, the difference in test error between ML and IL is small. The Hessian eigenvalue analysis and loss landscape visualization also show that the solutions obtained by ML and IL have similar sharpness and landscape geometry. These results suggest that ML and IL behave similarly when the model capacity is limited. Since the models cannot fully fit the training data in this regime, rapid fitting to noisy-label samples is unlikely to occur. Therefore, the effect of ML is not clearly observed.
+
+In the critically-parameterized regime, ML shows lower test error than IL. The Hessian eigenvalue analysis and loss landscape visualization also indicate that ML tends to reach flatter local minima than IL, and the variance analysis shows that ML suppresses the increase in prediction variance. In this regime, the model capacity becomes sufficient to fit the training data, making the learned solution sensitive to noisy-label samples and initialization. Therefore, IL is more likely to fit corrupted labels rapidly and converge to sharper solutions. In contrast, ML suppresses rapid fitting to noisy-label samples through the interaction between the two models. As a result, the effect of ML becomes most apparent in this regime, where it guides the models toward flatter local minima, reduces prediction variance, and lowers the test error.
+
+In the over-parameterized regime, the final difference in test error between ML and IL becomes small. The Hessian eigenvalue analysis and loss landscape visualization also show that the solutions obtained by ML and IL have similar sharpness and landscape geometry. These results suggest that both methods eventually reach solutions with similar properties when the model capacity is sufficiently large. Since the models have enough capacity to fit the training data in this regime, the difference between ML and IL is less apparent in the final test performance.
+
+In this regime, ML shows larger fluctuations in the early stage of training. Since the two models in ML have different initial weights, their prediction distributions can differ at the beginning of training. The consistency loss then forces the two models to align their prediction distributions, even when these predictions are still unstable. This can make the learning dynamics of ML temporarily unstable and lead to larger fluctuations in the error rate.
+
+Overall, these results suggest that the effect of ML depends on the balance between model capacity and sensitivity to noisy-label samples: it is limited in the under-parameterized regime, most apparent in the critically-parameterized regime, and mainly appears in transient learning dynamics in the over-parameterized regime.
+
+\section{Conclusions}
+
+This study analyzed the generalization process of ML from the perspective of double descent by comparing ML with IL. We first examined parameter-wise double descent to define the under-, critically-, and over-parameterized regimes. We then conducted regime-wise analyses of error-rate dynamics over training epochs, prediction variance, Hessian eigenvalues, loss landscape geometry, and error behavior on noisy-label and clean-label samples.
+
+The results showed that the effect of ML differs across the parameter-wise regimes. In the under-parameterized regime, the difference between ML and IL was small. In the critically-parameterized regime, ML achieved lower test error than IL. In contrast, in the over-parameterized regime, the final difference in test error became small, although ML showed larger fluctuations in the early stage of training. These results indicate that ML is most effective around the critically-parameterized regime.
+
+The additional analyses suggest that the improved generalization of ML in the critically-parameterized regime is related to both solution geometry and prediction stability. The Hessian eigenvalue analysis and loss landscape visualization showed that ML tends to reach flatter local minima than IL. The variance analysis also showed that ML suppresses the increase in prediction variance. Furthermore, the noisy-label analysis suggested that ML reduces rapid fitting to noisy-label samples. These results suggest that the interaction between models in ML guides the models toward flatter solutions and stabilizes their prediction distributions, leading to lower test error.
+
+Future work will further examine how the interaction between models affects noisy-label fitting and solution geometry. In particular, we will analyze how the consistency loss influences the trajectory toward flatter local minima in the critically-parameterized regime.
+
+\funding
+\textcolor{red}{(required)}
+
+\conflictsofinterest
+The authors declare no competing interests.
+
+\authorcontribution
+The authors’ contributions to this study are as follows:
+
+\begin{tabular}{ll}
+Conceptualization: F.K., K.N., T.T.\\
+Investigation: F.K., K.N., T.T.\\
+Supervision: T.T.\\
+Writing--original draft: F.K., K.N., T.T.\\
+Writing--review \& editing: F.K., K.N., T.T.\\
+\end{tabular}
+
+% \aitools
+% \textcolor{blue}{(if any)}
+% Authors are required to declare the use of Artificial intelligence tools
+% in the research or preparation of the manuscript. Include all relevant
+% details, including the name of the tool or service, a link to it, and
+% the purpose or reason for the use of the tool. Declare
+% ``\verb+\aitools+'' before the Artificial intelligence tools text.
+
+% \appendix
+% \textcolor{blue}{(if any)}
+% Appendices are placed after the additional descriptions including Data
+% Availability, Funding, and so on, but before the References.
+% Declare  ``\verb+\appendix+'' before placing appendix sections.
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\end{document}
+
+

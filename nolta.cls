@@ -2,6 +2,8 @@
 \RequirePackage{plautopatch}
 \fi
 
+% added by TU
+\newdimen\capwidth
 
 %%% A4 14Q X 160mm X 51L(19H)
 
@@ -22,7 +24,9 @@
 % [2022/10/01 v4.00 NOLTA class (C) 2022 Copyright IEICE. All rights reserved.]
 % [2023/10/24 v4.01 NOLTA class (C) 2023 Copyright IEICE. All rights reserved.]
 % [2023/11/01 v4.011 NOLTA class (C) 2023 Copyright IEICE. All rights reserved.]
-  [2024/04/01 v5.00 NOLTA class (C) 2024 Copyright IEICE. All rights reserved.]
+% [2024/04/01 v5.00 NOLTA class (C) 2024 Copyright IEICE. All rights reserved.]
+% [2026/01/01 v6.00 NOLTA class (C) 2026 Copyright IEICE. All rights reserved.]
+[2026/04/10 v6.01 NOLTA class (C) 2026 Copyright IEICE. All rights reserved.]
 
 %%2018/04/18 v3.06 Add for ORCID ID.
 %%2022/08/29 experimental code for TL2020 or later
@@ -45,6 +49,7 @@
 %%2023/11/01 The name of header, CC image is changed
 %%2024/04/01 fix the identifier of the macros for NOLA.
 %%2024/04/01 Add new headers. (Ack Ref header is changed ro subsection)
+%%2026/04/10 based on a bug report, fixed table* definition.
 
 %\RequirePackage{keyval}%%%
 
@@ -239,14 +244,21 @@
    \renewcommand\newblock{\par}}%
 }
 \ExecuteOptions{a4paper,twoside,final,paper}
-\ProcessOptions
 
+%patched by TU
+\@twocolumntrue
+\ProcessOptions\relax
+
+% Moved after \normalsize definition to avoid a font error with LuaTeX.
+% \RequirePackage{newtxtext}
+% \RequirePackage{newtxmath}
 
 
 
 %% graphics/Color
 \RequirePackage{graphicx}
 \RequirePackage{xcolor}
+
 
 
 
@@ -489,6 +501,8 @@
 \newcommand\Huge{\@setfontsize\Huge\@xxvpt{30}}
 
 
+\RequirePackage{newtxtext}
+\RequirePackage{newtxmath}
 
 
 
@@ -629,7 +643,9 @@
 \def\@listi{\leftmargin\leftmargini
             \parsep 4\p@ \@plus2\p@ \@minus\p@
             \topsep 8\p@ \@plus2\p@ \@minus4\p@
-            \itemsep4\p@ \@plus2\p@ \@minus\p@}
+            % patched by TU
+            %\itemsep4\p@ \@plus2\p@ \@minus\p@}
+            \itemsep1\p@ \@plus1\p@ \@minus1\p@}
 \let\@listI\@listi
 \@listi
 \def\@listii {\leftmargin\leftmarginii
@@ -727,8 +743,6 @@
 \newdimen\@tempdimc
 
 
-
-
 \def\Year#1{%
  \gdef\@Year{#1}%
  \afterassignment\remove@to@nnil
@@ -769,7 +783,10 @@
 \def\@No{}
 \def\@@No{}
 
-
+\def\PaperID#1{%
+  \gdef\@PaperID{#1}
+}
+\def\@PaperID{}
 
 
 \renewcommand{\No}[1]{%\setcounter{theArNumcnt}{0}
@@ -914,9 +931,9 @@ Received\
 
 
 
-
-\gdef\@DOI{DOI: 10.1587/nolta.\@Vol.\pageref{NOLTA@firstpage}%\@ArticleNumber
-}
+%patched by TU
+%\gdef\@DOI{DOI: 10.1587/nolta.\@Vol.\pageref{NOLTA@firstpage}%\@ArticleNumber
+\gdef\@DOI{DOI: 10.1587/nolta.\@PaperID }
 
 
 
@@ -1089,9 +1106,11 @@ Nonlinear Theory and Its Applications,
 IEICE, vol.\ \@VolForHeadings,
 no.\ \@NoForHeadings,
 pp.\ \pageref{NOLTA@firstpage}--\pageref{LastPage}%\fmt@month{\@Month}\hspace{2.5mm}
-\hskip3mm%6mm
+%patched by TU
+\hskip1mm%3mm%6mm
 {\copyright}IEICE\ \@Year%
-\hskip3mm%6mm
+%patched by TU
+\hskip1mm%3mm%6mm
 {\footnotesize{\@DOI}}%%!!v28
 \hfill}%\hfill}}%
 \end{tabular}}%
@@ -1117,9 +1136,11 @@ Nonlinear Theory and Its Applications,
 IEICE, vol.\ \@VolForHeadings,
 no.\ \@NoForHeadings,
 pp.\ \pageref{NOLTA@firstpage}--\pageref{LastPage}%\fmt@month{\@Month}\hspace{2.5mm}
-\hskip3mm%6mm
+%patched by TU
+\hskip1mm%3mm%6mm
 {\copyright}IEICE\ \@Year%
-\hskip3mm%6mm
+%patched by TU
+\hskip1mm%3mm%6mm
 {\footnotesize{\@DOI}}%%!!v28
 \hfill}%\hfill}}%
 \end{tabular}}%
@@ -1446,7 +1467,8 @@ pp.\ \pageref{NOLTA@firstpage}--\pageref{LastPage}%\fmt@month{\@Month}\hspace{2.
 %   \unskip\inhibitglue
 \par%\smash{\pushtowall{\rule[0mm]{100mm}{.1mm}}}
   \end{minipage}%
- \egroup\ignorespaces}
+ \egroup\ignorespaces
+ }
 
 \def\keywords{%
  \global\setbox\@keywordsbox\hbox\bgroup
@@ -1465,8 +1487,7 @@ pp.\ \pageref{NOLTA@firstpage}--\pageref{LastPage}%\fmt@month{\@Month}\hspace{2.
 %   \unskip\inhibitglue
 \par%\smash{\pushtowall{\rule[0mm]{100mm}{.1mm}}}
   \end{minipage}%
- \egroup\ignorespaces}
-
+\egroup\ignorespaces}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2529,7 +2550,9 @@ xscale=\@OrigHeightRecip*\@curXheight,transform shape]
 %                     {6.5pt \@plus.2ex}%%\@tempskipa!!!
                      {1.50mm \@plus.2ex}%%\@tempskipa!!!
                      {\reset@font\large%\slshape
-                      \fontsize{18\Q}{24\Q}\selectfont\bfseries
+%                      \fontsize{18\Q}{24\Q}\selectfont\bfseries
+% patched by TU on Dec. 19, 2025
+                      \fontsize{16\Q}{21\Q}\selectfont\bfseries
                       \mathversion{bold}}}
 
 
@@ -2537,16 +2560,22 @@ xscale=\@OrigHeightRecip*\@curXheight,transform shape]
 
 \newcommand\subsection{\@startsection{subsection}{2}{\z@}%
 %                      {-1\baselineskip\@plus -1ex \@minus -.2ex}%
-                      {-3.6mm\@plus -1ex \@minus -.2ex}%
-                      {.0001pt \@plus .2ex}%
+%                      {-3.6mm\@plus -1ex \@minus -.2ex}%
+%                      {.0001pt \@plus .2ex}%
+                      {-2.2mm \@plus -0.6ex \@minus -.2ex}%
+                      {.6mm \@plus .2ex}%
                       {\reset@font%\large%\slshape
-                       \fontsize{16\Q}{22\Q}\selectfont\bfseries
+% patched by TU on Dec. 19, 2025
+                      %\fontsize{16\Q}{21\Q}\selectfont\bfseries
+                      \fontsize{15\Q}{20\Q}\selectfont\bfseries
                        \mathversion{bold}}}
 
 \newcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
-                         {-1\baselineskip\@plus -1ex \@minus -.2ex}%
-                         {.0001pt \@plus .2ex}%
-                         {\reset@font\large%\slshape
+%                         {-1\baselineskip\@plus -1ex \@minus -.2ex}%
+%                         {.0001pt \@plus .2ex}%
+                      {-1.2mm \@plus -0.4ex \@minus -.2ex}%
+                      {.3mm \@plus .2ex}%
+                         {\reset@font%\large%\slshape
                           \fontsize{14\Q}{19\Q}\selectfont\bfseries
                           \mathversion{bold}}}
 
@@ -2684,11 +2713,7 @@ xscale=\@OrigHeightRecip*\@curXheight,transform shape]
                       \fontsize{16\Q}{22\Q}\selectfont\bfseries
                       \mathversion{bold}}}
 
-
-
-
 \newcommand{\appendix}{\Othersection*{Appendix}}
-
 
 \newcommand{\acknowledgments}{\Othersection*{Acknowledgments}}
 \newcommand{\dataavailability}{\Othersection*{Data availability}}
@@ -2698,12 +2723,6 @@ xscale=\@OrigHeightRecip*\@curXheight,transform shape]
 \newcommand{\authorcontribution}{\Othersection*{Author contribution}}
 \newcommand{\ethics}{\Othersection*{Ethics approval and consent to participate}}
 \newcommand{\patientconsent}{\Othersection*{Patient consent for publication}}
-
-
-
-
-
-
 
 
 \if@twocolumn
@@ -2885,7 +2904,7 @@ xscale=\@OrigHeightRecip*\@curXheight,transform shape]
                {\end@float}
 
 \newenvironment{table*}
-               {\floatenv\capwidth.67\textwidth\abovecaptionskip\z@\belowcaptionskip1.25mm\let\center=\Center\@dblfloat{table}}
+               {\@floatenv\capwidth.67\textwidth\abovecaptionskip\z@\belowcaptionskip1.25mm\let\center=\Center\@dblfloat{table}}
                {\end@dblfloat}
 
 
@@ -3181,7 +3200,7 @@ xscale=\@OrigHeightRecip*\@curXheight,transform shape]
 %\paperwidth210mm
 %\paperheight297mm
 
-\columnsep7mm
+\columnsep5mm
 
 %\headsep7mm
 %\footskip9.25mm
@@ -3886,6 +3905,12 @@ xscale=\@OrigHeightRecip*\@curXheight,transform shape]
 
 
 \AtBeginDocument{%
+% added by TU
+  \if@twocolumn
+    \setlength{\capwidth}{\columnwidth}
+  \else
+    \setlength{\capwidth}{\textwidth}
+  \fi
 \if@orcid
 \AtEndDocument{\thispagestyle{empty}
    \advance\c@page\@ne
@@ -3955,9 +3980,6 @@ hyperfootnotes=false,
 
 
 
-
-
-
 \ifdefined\AddToHook
 \def\AddToHook@begindocument@end@AtBeginDocument{\AddToHook{begindocument/end}}
 \else
@@ -3976,6 +3998,7 @@ hyperfootnotes=false,
 \RequirePackage{hypernat}
 %\renewcommand{\thepage}{}
 
+\RequirePackage{balance}
 
 
 %\makeatletter
